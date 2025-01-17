@@ -6,6 +6,7 @@ import Icon from "@mui/material/Icon";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Pagination from "@mui/material/Pagination";
+import CircularProgress from "@mui/material/CircularProgress"; // For loading spinner
 
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
@@ -15,19 +16,21 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 // Images
 import Cookies from "js-cookie";
 
-const rowsPerPage = 5;
+const rowsPerPage = 6;
 
 function Projects() {
   const [menu, setMenu] = useState(null);
   const [page, setPage] = useState(1); // Manage the page state
   const [hotels, setHotels] = useState([]);
   const [totalPages, setTotalPages] = useState(0);
+  const [loading, setLoading] = useState(true); // Track loading state
 
   // Fetch hotel data from API
   useEffect(() => {
     const fetchData = async () => {
       const apiUrl = process.env.NEXT_PUBLIC_DASHBOARD_USER_API;
       const access_token = Cookies.get("access_token");
+      setLoading(true); // Set loading to true when fetching starts
       try {
         const response = await fetch(
           `http://localhost:8080/api/v1/amadeus/all/hotels?page=${page}&limit=${rowsPerPage}`,
@@ -48,6 +51,8 @@ function Projects() {
         }
       } catch (error) {
         console.log(`Failed to fetch data: ${error}`);
+      } finally {
+        setLoading(false); // Set loading to false once the data is fetched
       }
     };
 
@@ -151,22 +156,29 @@ function Projects() {
         {renderMenu}
       </MDBox>
       <MDBox>
-        <DataTable
-          table={{
-            columns: [
-              { Header: "Hotel ID", accessor: "hotelId", width: "10%", align: "left" },
-              { Header: "Hotel Name", accessor: "name", width: "45%", align: "left" },
-              { Header: "Location", accessor: "location", width: "10%", align: "left" },
-              { Header: "Status", accessor: "completion", align: "center" },
-            ],
-            rows: currentRows,
-          }}
-          showTotalEntries={false}
-          isSorted={false}
-          noEndBorder
-          entriesPerPage={false}
-          page={page} // Pass the current page to DataTable
-        />
+        {/* Display loading spinner until data is fetched */}
+        {loading ? (
+          <MDBox display="flex" justifyContent="center" alignItems="center" p={3}>
+            <CircularProgress />
+          </MDBox>
+        ) : (
+          <DataTable
+            table={{
+              columns: [
+                { Header: "Hotel ID", accessor: "hotelId", width: "10%", align: "left" },
+                { Header: "Hotel Name", accessor: "name", width: "45%", align: "left" },
+                { Header: "Location", accessor: "location", width: "10%", align: "left" },
+                { Header: "Status", accessor: "completion", align: "center" },
+              ],
+              rows: currentRows,
+            }}
+            showTotalEntries={false}
+            isSorted={false}
+            noEndBorder
+            entriesPerPage={false}
+            page={page} // Pass the current page to DataTable
+          />
+        )}
       </MDBox>
       {/* Pagination UI */}
       <MDBox display="flex" justifyContent="center" my={3}>
