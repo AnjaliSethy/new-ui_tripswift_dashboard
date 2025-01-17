@@ -1,42 +1,100 @@
-/**
-=========================================================
-* Material Dashboard 2 React - v2.2.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/material-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 // @mui material components
 import Card from "@mui/material/Card";
 import Icon from "@mui/material/Icon";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
+import Pagination from "@mui/material/Pagination";
 
-// Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
-
-// Material Dashboard 2 React examples
 import DataTable from "examples/Tables/DataTable";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
-// Data
-import data from "layouts/dashboard/components/Projects/data";
+// Images
+import Cookies from "js-cookie";
+
+const rowsPerPage = 5;
 
 function Projects() {
-  const { columns, rows } = data();
   const [menu, setMenu] = useState(null);
+  const [page, setPage] = useState(1); // Manage the page state
+  const [hotels, setHotels] = useState([]);
+  const [totalPages, setTotalPages] = useState(0);
 
-  const openMenu = ({ currentTarget }) => setMenu(currentTarget);
-  const closeMenu = () => setMenu(null);
+  // Fetch hotel data from API
+  useEffect(() => {
+    const fetchData = async () => {
+      const apiUrl = process.env.NEXT_PUBLIC_DASHBOARD_USER_API;
+      const access_token = Cookies.get("access_token");
+      try {
+        const response = await fetch(
+          `http://localhost:8080/api/v1/amadeus/all/hotels?page=${page}&limit=${rowsPerPage}`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${access_token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        if (response.status === 200) {
+          const data = await response.json();
+          setHotels(data.data);
+          setTotalPages(data.pagination.totalPages);
+        } else {
+          console.log(`Unexpected response status: ${response.status}`);
+        }
+      } catch (error) {
+        console.log(`Failed to fetch data: ${error}`);
+      }
+    };
+
+    fetchData();
+  }, [page]);
+
+  // Process rows
+  const currentRows = hotels.map((hotel) => ({
+    hotelId: (
+      <MDBox display="flex" alignItems="center" lineHeight={1}>
+        <MDTypography variant="button" fontWeight="medium">
+          {hotel.hotelId || "Unknown"}
+        </MDTypography>
+      </MDBox>
+    ),
+    name: (
+      <MDBox display="flex" alignItems="center" lineHeight={1}>
+        <MDTypography variant="button" fontWeight="medium">
+          {hotel.name || "Unknown"}
+        </MDTypography>
+      </MDBox>
+    ),
+    location: (
+      <MDTypography variant="caption" color="text" fontWeight="medium">
+        {hotel.location || "Unknown"}
+      </MDTypography>
+    ),
+    completion: (
+      <MDBox width="8rem" textAlign="center">
+        <MDBox display="flex" alignItems="center" justifyContent="center">
+          <CheckCircleIcon style={{ color: "green", fontSize: "20px" }} />
+          <MDTypography
+            variant="caption"
+            color="text"
+            fontWeight="medium"
+            style={{ marginLeft: "5px" }}
+          >
+            Open/Bookable
+          </MDTypography>
+        </MDBox>
+      </MDBox>
+    ),
+  }));
+
+  const handlePageChange = (event, value) => {
+    setPage(value);
+  };
 
   const renderMenu = (
     <Menu
@@ -51,11 +109,11 @@ function Projects() {
         horizontal: "right",
       }}
       open={Boolean(menu)}
-      onClose={closeMenu}
+      onClose={() => setMenu(null)}
     >
-      <MenuItem onClick={closeMenu}>Action</MenuItem>
-      <MenuItem onClick={closeMenu}>Another action</MenuItem>
-      <MenuItem onClick={closeMenu}>Something else</MenuItem>
+      <MenuItem onClick={() => setMenu(null)}>Action</MenuItem>
+      <MenuItem onClick={() => setMenu(null)}>Another action</MenuItem>
+      <MenuItem onClick={() => setMenu(null)}>Something else</MenuItem>
     </Menu>
   );
 
@@ -77,12 +135,16 @@ function Projects() {
               done
             </Icon>
             <MDTypography variant="button" fontWeight="regular" color="text">
-              &nbsp;<strong>30 done</strong> this month
+              &nbsp;<strong>Active hotels</strong> of this month
             </MDTypography>
           </MDBox>
         </MDBox>
         <MDBox color="text" px={2}>
-          <Icon sx={{ cursor: "pointer", fontWeight: "bold" }} fontSize="small" onClick={openMenu}>
+          <Icon
+            sx={{ cursor: "pointer", fontWeight: "bold" }}
+            fontSize="small"
+            onClick={() => setMenu(null)}
+          >
             more_vert
           </Icon>
         </MDBox>
@@ -90,12 +152,25 @@ function Projects() {
       </MDBox>
       <MDBox>
         <DataTable
-          table={{ columns, rows }}
+          table={{
+            columns: [
+              { Header: "Hotel ID", accessor: "hotelId", width: "10%", align: "left" },
+              { Header: "Hotel Name", accessor: "name", width: "45%", align: "left" },
+              { Header: "Location", accessor: "location", width: "10%", align: "left" },
+              { Header: "Status", accessor: "completion", align: "center" },
+            ],
+            rows: currentRows,
+          }}
           showTotalEntries={false}
           isSorted={false}
           noEndBorder
           entriesPerPage={false}
+          page={page} // Pass the current page to DataTable
         />
+      </MDBox>
+      {/* Pagination UI */}
+      <MDBox display="flex" justifyContent="center" my={3}>
+        <Pagination count={totalPages} color="primary" page={page} onChange={handlePageChange} />
       </MDBox>
     </Card>
   );

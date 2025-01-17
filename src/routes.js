@@ -102,7 +102,7 @@ const routes = [
   {
     type: "collapse",
     name: "Analytics",
-    key: "billing",
+    key: "analytic",
     icon: <Icon fontSize="small">receipt_long</Icon>,
     route: "/analytics",
     component: <Analytic />,
