@@ -54,7 +54,7 @@ function reducer(state, action) {
 }
 
 // Material Dashboard 2 React context provider
-function MaterialUIControllerProvider({ children }) {
+function TripSwiftControllerProvider({ children }) {
   const initialState = {
     miniSidenav: false,
     transparentSidenav: false,
@@ -81,15 +81,14 @@ function useMaterialUIController() {
 
   if (!context) {
     throw new Error(
-      "useMaterialUIController should be used inside the MaterialUIControllerProvider."
+      "useMaterialUIController should be used inside the TripSwiftControllerProvider."
     );
   }
 
   return context;
 }
 
-// Typechecking props for the MaterialUIControllerProvider
-MaterialUIControllerProvider.propTypes = {
+TripSwiftControllerProvider.propTypes = {
   children: PropTypes.node.isRequired,
 };
 
@@ -106,7 +105,7 @@ const setLayout = (dispatch, value) => dispatch({ type: "LAYOUT", value });
 const setDarkMode = (dispatch, value) => dispatch({ type: "DARKMODE", value });
 
 export {
-  MaterialUIControllerProvider,
+  TripSwiftControllerProvider,
   useMaterialUIController,
   setMiniSidenav,
   setTransparentSidenav,

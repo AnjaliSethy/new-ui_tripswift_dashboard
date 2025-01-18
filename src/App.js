@@ -31,6 +31,9 @@ import { useMaterialUIController, setMiniSidenav, setOpenConfigurator } from "co
 import brandWhite from "assets/images/logo-ct.png";
 import brandDark from "assets/images/logo-ct-dark.png";
 
+// Import your HotelBookingDetails component
+import HotelBookingDetails from "layouts/hotel-booking/hotel_booking_details";
+
 export default function App() {
   const [controller, dispatch] = useMaterialUIController();
   const {
@@ -116,7 +119,7 @@ export default function App() {
             color={sidenavColor}
             brand={(transparentSidenav && !darkMode) || whiteSidenav ? brandDark : brandWhite}
             brandName="TripSwift"
-            routes={routes}
+            routes={routes.filter((route) => route.key !== "hotelBookingDetails")} // Exclude HotelBookingDetails from sidebar
             onMouseEnter={handleOnMouseEnter}
             onMouseLeave={handleOnMouseLeave}
           />
@@ -127,6 +130,7 @@ export default function App() {
       {layout === "vr" && <Configurator />}
       <Routes>
         {getRoutes(routes)}
+        <Route path="/hotel/:hotelId" element={<HotelBookingDetails />} /> {/* Keep this route */}
         <Route path="*" element={<Navigate to="/dashboard" />} />
       </Routes>
     </ThemeProvider>

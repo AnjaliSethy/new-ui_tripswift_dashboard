@@ -57,7 +57,6 @@ function Basic() {
       const data = await response.json();
       const access_token = data.data.accessToken;
       Cookies.set("access_token", access_token, { secure: true, sameSite: "strict" }); // Store token securely
-      console.log("Login successful. Token stored in cookies:", access_token);
 
       // Redirect to dashboard
       navigate("/dashboard");
