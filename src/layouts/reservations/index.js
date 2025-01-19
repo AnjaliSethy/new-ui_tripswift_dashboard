@@ -178,15 +178,15 @@ function Reservations() {
   return (
     <DashboardLayout>
       <DashboardNavbar />
-      <MDBox pt={6} pb={3}>
+      <MDBox pt={6} pb={3} px={2} py={3}>
         <Grid container spacing={6}>
           {/* Filter Section */}
           <Grid item xs={12}>
             <Card>
               <MDBox p={3}>
-                <MDTypography variant="h6" gutterBottom>
+                {/* <MDTypography variant="h6" gutterBottom>
                   Filters
-                </MDTypography>
+                </MDTypography> */}
                 <Grid container spacing={3}>
                   <Grid item xs={3}>
                     <TextField

@@ -12,7 +12,7 @@ import DataTable from "examples/Tables/DataTable";
 import Cookies from "js-cookie";
 import MDButton from "components/MDButton"; // Import MDButton
 
-function RTL() {
+function Properties() {
   const [rows, setRows] = useState([]);
   const [pagination, setPagination] = useState({
     currentPage: 1,
@@ -89,7 +89,9 @@ function RTL() {
 
   // Handle page change
   const handlePageChange = (newPage) => {
-    setPagination((prev) => ({ ...prev, currentPage: newPage }));
+    if (newPage > 0 && newPage <= pagination.totalPages) {
+      setPagination((prev) => ({ ...prev, currentPage: newPage }));
+    }
   };
 
   // Handle rows per page change
@@ -97,7 +99,7 @@ function RTL() {
     setPagination((prev) => ({
       ...prev,
       rowsPerPage: parseInt(event.target.value, 10),
-      currentPage: 1,
+      currentPage: 1, // Reset to the first page
     }));
   };
 
@@ -171,80 +173,79 @@ function RTL() {
       </DashboardLayout>
     );
   }
+
   return (
     <DashboardLayout>
       <DashboardNavbar />
       <MDBox px={2} py={3}>
-        {!loading && !error && (
-          <Grid container spacing={6}>
-            <Grid item xs={12}>
-              <Card>
+        <Grid container spacing={6}>
+          <Grid item xs={12}>
+            <Card>
+              <MDBox
+                mx={2}
+                mt={-3}
+                py={3}
+                px={2}
+                variant="gradient"
+                bgColor="info"
+                borderRadius="lg"
+                coloredShadow="info"
+              >
+                <MDTypography variant="h6" color="white">
+                  All Hotel Details
+                </MDTypography>
+              </MDBox>
+              <MDBox pt={3}>
+                <DataTable
+                  table={{ columns, rows }}
+                  isSorted={false}
+                  entriesPerPage={false}
+                  showTotalEntries={false}
+                  noEndBorder
+                />
+                {/* Pagination Controls */}
                 <MDBox
-                  mx={2}
-                  mt={-3}
-                  py={3}
-                  px={2}
-                  variant="gradient"
-                  bgColor="info"
-                  borderRadius="lg"
-                  coloredShadow="info"
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  px={3}
+                  p={4}
                 >
-                  <MDTypography variant="h6" color="white">
-                    All Hotel Details
-                  </MDTypography>
-                </MDBox>
-                <MDBox pt={3}>
-                  <DataTable
-                    table={{ columns, rows }}
-                    isSorted={false}
-                    entriesPerPage={false}
-                    showTotalEntries={false}
-                    noEndBorder
-                  />
-                  {/* Pagination Controls */}
-                  <MDBox
-                    display="flex"
-                    justifyContent="space-between"
-                    alignItems="center"
-                    px={3}
-                    p={4}
-                  >
-                    <MDBox>
-                      <MDTypography variant="caption" fontWeight="bold">
-                        Rows per page:&nbsp;
-                      </MDTypography>
-                      <select value={pagination.rowsPerPage} onChange={handleRowsPerPageChange}>
-                        <option value={5}>5</option>
-                        <option value={10}>10</option>
-                      </select>
-                    </MDBox>
+                  <MDBox>
                     <MDTypography variant="caption" fontWeight="bold">
-                      {`${startRecord}-${endRecord} of ${pagination.totalRecords}`}
+                      Rows per page:&nbsp;
                     </MDTypography>
-                    <MDBox>
-                      <MDButton
-                        variant="text"
-                        color="primary"
-                        disabled={pagination.currentPage === 1}
-                        onClick={() => handlePageChange(pagination.currentPage - 1)}
-                      >
-                        Previous
-                      </MDButton>
-                      <MDButton
-                        variant="text"
-                        color="primary"
-                        disabled={pagination.currentPage === pagination.totalPages}
-                        onClick={() => handlePageChange(pagination.currentPage + 1)}
-                      >
-                        Next
-                      </MDButton>
-                    </MDBox>
+                    <select value={pagination.rowsPerPage} onChange={handleRowsPerPageChange}>
+                      <option value={5}>5</option>
+                      <option value={10}>10</option>
+                    </select>
+                  </MDBox>
+                  <MDTypography variant="caption" fontWeight="bold">
+                    {`${startRecord}-${endRecord} of ${pagination.totalRecords}`}
+                  </MDTypography>
+                  <MDBox>
+                    <MDButton
+                      variant="text"
+                      color="primary"
+                      disabled={pagination.currentPage === 1}
+                      onClick={() => handlePageChange(pagination.currentPage - 1)}
+                    >
+                      Previous
+                    </MDButton>
+                    <MDButton
+                      variant="text"
+                      color="primary"
+                      disabled={pagination.currentPage === pagination.totalPages}
+                      onClick={() => handlePageChange(pagination.currentPage + 1)}
+                    >
+                      Next
+                    </MDButton>
                   </MDBox>
                 </MDBox>
-              </Card>
-            </Grid>
+              </MDBox>
+            </Card>
           </Grid>
-        )}
+        </Grid>
       </MDBox>
       <Footer />
     </DashboardLayout>
@@ -252,7 +253,7 @@ function RTL() {
 }
 
 // Define PropTypes for the component
-RTL.propTypes = {
+Properties.propTypes = {
   row: PropTypes.shape({
     original: PropTypes.shape({
       hotel_id: PropTypes.string.isRequired,
@@ -262,4 +263,4 @@ RTL.propTypes = {
   }),
 };
 
-export default RTL;
+export default Properties;

@@ -17,11 +17,14 @@ import Footer from "examples/Footer";
 import DataTable from "examples/Tables/DataTable";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 
-function Tables() {
+function Revenue() {
   const [columns, setColumns] = useState([]);
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true); // Loading state
   const [error, setError] = useState(null); // Error state
+  const [totalBookings, setTotalBookings] = useState(0); // Total bookings state
+  const [totalRevenue, setTotalRevenue] = useState(0); // Total revenue state
+  const [averageBooking, setAverageBooking] = useState(0); // Average booking state
   const navigate = useNavigate(); // Initialize useNavigate
 
   useEffect(() => {
@@ -30,6 +33,17 @@ function Tables() {
       try {
         const response = await axios.get("http://localhost:8080/api/v1/amadeus/top/revenue/hotels");
         const { data } = response.data;
+
+        // Calculate total bookings and total revenue
+        const totalBookingsCount = data.reduce((acc, item) => acc + item.totalBookings, 0);
+        const totalRevenueAmount = data.reduce((acc, item) => acc + item.totalRevenue, 0); // Assuming totalRevenue is part of the response
+        const averageBookingAmount =
+          totalBookingsCount > 0 ? totalRevenueAmount / totalBookingsCount : 0;
+
+        // Set state for total bookings, total revenue, and average booking
+        setTotalBookings(totalBookingsCount);
+        setTotalRevenue(totalRevenueAmount);
+        setAverageBooking(averageBookingAmount);
 
         // Define table columns
         const tableColumns = [
@@ -124,7 +138,41 @@ function Tables() {
     <DashboardLayout>
       <DashboardNavbar />
       <MDBox pt={6} pb={3}>
-        <Grid container spacing={6}>
+        <Grid container spacing={6} pb={4}>
+          {/* Cards Section */}
+          <Grid item xs={12} md={4}>
+            <Card>
+              <MDBox p={2}>
+                <MDTypography variant="h6">Total Bookings</MDTypography>
+                <MDTypography variant="h4" color="info">
+                  {totalBookings}
+                </MDTypography>
+              </MDBox>
+            </Card>
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <Card>
+              <MDBox p={2}>
+                <MDTypography variant="h6">Total Revenue</MDTypography>
+                <MDTypography variant="h4" color="info">
+                  {totalRevenue.toLocaleString("en-IN", { style: "currency", currency: "INR" })}
+                </MDTypography>
+              </MDBox>
+            </Card>
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <Card>
+              <MDBox p={2}>
+                <MDTypography variant="h6">Average Booking</MDTypography>
+                <MDTypography variant="h4" color="info">
+                  {averageBooking.toLocaleString("en-IN", { style: "currency", currency: "INR" })}
+                </MDTypography>
+              </MDBox>
+            </Card>
+          </Grid>
+        </Grid>
+
+        <Grid container spacing={6} pt={3}>
           <Grid item xs={12}>
             <Card>
               <MDBox
@@ -159,4 +207,4 @@ function Tables() {
   );
 }
 
-export default Tables;
+export default Revenue;

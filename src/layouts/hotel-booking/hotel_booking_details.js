@@ -156,6 +156,36 @@ function HotelBookingDetails() {
   return (
     <DashboardLayout>
       <DashboardNavbar />
+      <Card>
+        <MDBox py={3} px={3} pb={2}>
+          <MDBox display="flex" justifyContent="space-between" alignItems="center">
+            <MDBox>
+              <MDTypography variant="caption" fontWeight="bold">
+                Start Date:
+              </MDTypography>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                style={{ margin: "0 1rem" }}
+              />
+              <MDTypography variant="caption" fontWeight="bold">
+                End Date:
+              </MDTypography>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                style={{ margin: "0 1rem" }}
+              />
+            </MDBox>
+            <MDTypography variant="h6" color="success">
+              Total Revenue: {formatCurrency(totalRevenue)}
+            </MDTypography>
+          </MDBox>
+        </MDBox>
+      </Card>
+
       <MDBox pt={6} pb={3}>
         <Grid container spacing={6}>
           <Grid item xs={12}>
@@ -181,7 +211,7 @@ function HotelBookingDetails() {
                   px={3}
                   pb={3}
                 >
-                  <MDBox>
+                  {/* <MDBox>
                     <MDTypography variant="caption" fontWeight="bold">
                       Start Date:
                     </MDTypography>
@@ -203,7 +233,7 @@ function HotelBookingDetails() {
                   </MDBox>
                   <MDTypography variant="h6" color="success">
                     Total Revenue: {formatCurrency(totalRevenue)}
-                  </MDTypography>
+                  </MDTypography> */}
                 </MDBox>
                 <DataTable
                   table={{ columns: tableColumns, rows: filteredRows }}

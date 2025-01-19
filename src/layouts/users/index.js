@@ -17,10 +17,12 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 import DataTable from "examples/Tables/DataTable";
+import { useNavigate } from "react-router-dom";
 
 function Users() {
   const [columns, setColumns] = useState([]);
   const [rows, setRows] = useState([]);
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState(""); // Search term state
   const [filters, setFilters] = useState({
     name: "",
@@ -90,7 +92,11 @@ function Users() {
             variant="contained"
             color="info"
             size="small"
-            onClick={() => alert(`Viewing details for ${user.firstName}`)}
+            onClick={() =>
+              navigate(`/user-booking/${user._id}`, {
+                state: { userName: `${user.firstName} ${user.lastName}` }, // Pass user name in state
+              })
+            }
           >
             View
           </MDButton>
@@ -195,7 +201,7 @@ function Users() {
   return (
     <DashboardLayout>
       <DashboardNavbar />
-      <MDBox pt={6} pb={3}>
+      <MDBox pt={6} pb={3} px={2} py={3}>
         <Grid container spacing={6}>
           {/* Filter Section */}
           <Grid item xs={12}>

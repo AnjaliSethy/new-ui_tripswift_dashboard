@@ -1,6 +1,4 @@
 import { useState, useEffect } from "react";
-
-// react-router components
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 
 // @mui material components
@@ -17,8 +15,6 @@ import Configurator from "examples/Configurator";
 
 // Material Dashboard 2 React themes
 import theme from "assets/theme";
-
-// Material Dashboard 2 React Dark Mode themes
 import themeDark from "assets/theme-dark";
 
 // Material Dashboard 2 React routes
@@ -34,6 +30,8 @@ import brandDark from "assets/images/logo-ct-dark.png";
 // Import your HotelBookingDetails component
 import HotelBookingDetails from "layouts/hotel-booking/hotel_booking_details";
 
+import UserBookingDetails from "layouts/user-booking/user-booking-details";
+
 export default function App() {
   const [controller, dispatch] = useMaterialUIController();
   const {
@@ -48,7 +46,7 @@ export default function App() {
   const [onMouseEnter, setOnMouseEnter] = useState(false);
   const { pathname } = useLocation();
 
-  // Open sidenav when mouse enter on mini sidenav
+  // Open sidenav when mouse enters mini sidenav
   const handleOnMouseEnter = () => {
     if (miniSidenav && !onMouseEnter) {
       setMiniSidenav(dispatch, false);
@@ -56,7 +54,7 @@ export default function App() {
     }
   };
 
-  // Close sidenav when mouse leave mini sidenav
+  // Close sidenav when mouse leaves mini sidenav
   const handleOnMouseLeave = () => {
     if (onMouseEnter) {
       setMiniSidenav(dispatch, true);
@@ -64,26 +62,27 @@ export default function App() {
     }
   };
 
-  // Change the openConfigurator state
+  // Toggle configurator visibility
   const handleConfiguratorOpen = () => setOpenConfigurator(dispatch, !openConfigurator);
 
-  // Setting page scroll to 0 when changing the route
+  // Reset scroll position on route change
   useEffect(() => {
     document.documentElement.scrollTop = 0;
     document.scrollingElement.scrollTop = 0;
   }, [pathname]);
 
+  // Recursively generate routes
   const getRoutes = (allRoutes) =>
-    allRoutes.map((route) => {
+    allRoutes.flatMap((route) => {
       if (route.collapse) {
-        return getRoutes(route.collapse);
+        return getRoutes(route.collapse); // Recursively process collapsed routes
       }
 
       if (route.route) {
         return <Route exact path={route.route} element={route.component} key={route.key} />;
       }
 
-      return null;
+      return [];
     });
 
   const configsButton = (
@@ -115,11 +114,12 @@ export default function App() {
       <CssBaseline />
       {layout === "dashboard" && (
         <>
+          {/* Sidenav and Configurator */}
           <Sidenav
             color={sidenavColor}
             brand={(transparentSidenav && !darkMode) || whiteSidenav ? brandDark : brandWhite}
             brandName="TripSwift"
-            routes={routes.filter((route) => route.key !== "hotelBookingDetails")} // Exclude HotelBookingDetails from sidebar
+            routes={routes.filter((route) => route.key !== "hotelBookingDetails")}
             onMouseEnter={handleOnMouseEnter}
             onMouseLeave={handleOnMouseLeave}
           />
@@ -129,9 +129,17 @@ export default function App() {
       )}
       {layout === "vr" && <Configurator />}
       <Routes>
+        {/* Dynamic Routes */}
         {getRoutes(routes)}
-        <Route path="/hotel/:hotelId" element={<HotelBookingDetails />} /> {/* Keep this route */}
-        <Route path="*" element={<Navigate to="/dashboard" />} />
+
+        {/* HotelBookingDetails Route */}
+        <Route path="/hotel/:hotelId" element={<HotelBookingDetails />} />
+
+        <Route path="/user-booking/:userId" element={<UserBookingDetails />} />
+
+        {/* Default Redirect */}
+        {/* <Route path="*" element={<Navigate to="/dashboard" />} /> */}
+        <Route path="*" element={<Navigate to="/authentication/sign-in" />} />
       </Routes>
     </ThemeProvider>
   );

@@ -221,7 +221,7 @@ function Configurator() {
               mr: 1,
             }}
           >
-            <MDButton
+            {/* <MDButton
               color="dark"
               variant="gradient"
               onClick={handleDarkSidenav}
@@ -234,36 +234,36 @@ function Configurator() {
               }
             >
               Dark
-            </MDButton>
+            </MDButton> */}
             <MDBox sx={{ mx: 1, width: "8rem", minWidth: "8rem" }}>
               <MDButton
                 color="dark"
                 variant="gradient"
-                onClick={handleTransparentSidenav}
+                onClick={handleWhiteSidenav}
                 disabled={disabled}
                 fullWidth
                 sx={
-                  transparentSidenav && !whiteSidenav
+                  whiteSidenav && !transparentSidenav
                     ? sidenavTypeActiveButtonStyles
                     : sidenavTypeButtonsStyles
                 }
               >
-                Transparent
+                White
               </MDButton>
             </MDBox>
             <MDButton
               color="dark"
               variant="gradient"
-              onClick={handleWhiteSidenav}
+              onClick={handleTransparentSidenav}
               disabled={disabled}
               fullWidth
               sx={
-                whiteSidenav && !transparentSidenav
+                transparentSidenav && !whiteSidenav
                   ? sidenavTypeActiveButtonStyles
                   : sidenavTypeButtonsStyles
               }
             >
-              White
+              Transparent
             </MDButton>
           </MDBox>
         </MDBox>
