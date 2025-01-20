@@ -22,8 +22,8 @@ import { useNavigate } from "react-router-dom";
 function Users() {
   const [columns, setColumns] = useState([]);
   const [rows, setRows] = useState([]);
+  const [allUsers, setAllUsers] = useState([]); // Store all users
   const navigate = useNavigate();
-  const [searchTerm, setSearchTerm] = useState(""); // Search term state
   const [filters, setFilters] = useState({
     name: "",
     email: "",
@@ -57,11 +57,6 @@ function Users() {
         {
           headers: {
             Authorization: `Bearer ${token}`, // Include the token in the headers
-          },
-          params: {
-            name: filters.name,
-            email: filters.email,
-            role: filters.role,
           },
         }
       );
@@ -105,6 +100,7 @@ function Users() {
 
       setColumns(tableColumns);
       setRows(tableRows);
+      setAllUsers(tableRows); // Store all users for filtering
       setPagination({
         ...pagination,
         totalRecords: apiPagination.total,
@@ -120,12 +116,24 @@ function Users() {
 
   useEffect(() => {
     fetchUsersData();
-  }, [pagination.currentPage, pagination.rowsPerPage, filters]); // Add filters to dependencies
+  }, [pagination.currentPage, pagination.rowsPerPage]); // Fetch users data when page or rows per page changes
 
-  const handleSearchChange = (event) => {
-    setSearchTerm(event.target.value);
-    setPagination((prev) => ({ ...prev, currentPage: 1 })); // Reset to first page on search
-  };
+  // Filter users based on filter state
+  useEffect(() => {
+    const filteredRows = allUsers.filter((user) => {
+      const name = `${user.name}`.toLowerCase();
+      const email = user.email?.toLowerCase() || "";
+      const role = user.role?.toLowerCase() || "";
+
+      return (
+        name.includes(filters.name.toLowerCase()) &&
+        email.includes(filters.email.toLowerCase()) &&
+        role.includes(filters.role.toLowerCase())
+      );
+    });
+
+    setRows(filteredRows); // Update displayed rows based on filters
+  }, [filters, allUsers]); // Re-run filtering when filters or allUsers change
 
   const handleFilterChange = (event) => {
     const { name, value } = event.target;

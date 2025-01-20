@@ -15,6 +15,7 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 import DataTable from "examples/Tables/DataTable";
+import ComplexStatisticsCard from "examples/Cards/StatisticsCards/ComplexStatisticsCard"; // Import ComplexStatisticsCard
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 
 function Revenue() {
@@ -25,6 +26,9 @@ function Revenue() {
   const [totalBookings, setTotalBookings] = useState(0); // Total bookings state
   const [totalRevenue, setTotalRevenue] = useState(0); // Total revenue state
   const [averageBooking, setAverageBooking] = useState(0); // Average booking state
+  const [animatedBookings, setAnimatedBookings] = useState(0); // Animated bookings state
+  const [animatedRevenue, setAnimatedRevenue] = useState(0); // Animated revenue state
+  const [animatedAverage, setAnimatedAverage] = useState(0); // Animated average booking state
   const navigate = useNavigate(); // Initialize useNavigate
 
   useEffect(() => {
@@ -87,6 +91,45 @@ function Revenue() {
     fetchRevenueData();
   }, []);
 
+  // Counting animation effect
+  useEffect(() => {
+    if (!loading) {
+      const duration = 2000; // Duration of the counting animation in milliseconds
+      const stepTime = 50; // Time between each step in milliseconds
+      const totalSteps = duration / stepTime;
+
+      const bookingsStep = Math.ceil(totalBookings / totalSteps);
+      const revenueStep = Math.ceil(totalRevenue / totalSteps);
+      const averageStep = Math.ceil(averageBooking / totalSteps);
+
+      let bookingsCount = 0;
+      let revenueCount = 0;
+      let averageCount = 0;
+
+      const interval = setInterval(() => {
+        if (bookingsCount < totalBookings) {
+          bookingsCount += bookingsStep;
+          setAnimatedBookings(Math.min(bookingsCount, totalBookings));
+        }
+        if (revenueCount < totalRevenue) {
+          revenueCount += revenueStep;
+          setAnimatedRevenue(Math.min(revenueCount, totalRevenue));
+        }
+        if (averageCount < averageBooking) {
+          averageCount += averageStep;
+          setAnimatedAverage(Math.min(averageCount, averageBooking));
+        }
+        if (
+          bookingsCount >= totalBookings &&
+          revenueCount >= totalRevenue &&
+          averageCount >= averageBooking
+        ) {
+          clearInterval(interval);
+        }
+      }, stepTime);
+    }
+  }, [loading, totalBookings, totalRevenue, averageBooking]);
+
   // Display loading screen
   if (loading) {
     return (
@@ -141,34 +184,48 @@ function Revenue() {
         <Grid container spacing={6} pb={4}>
           {/* Cards Section */}
           <Grid item xs={12} md={4}>
-            <Card>
-              <MDBox p={2}>
-                <MDTypography variant="h6">Total Bookings</MDTypography>
-                <MDTypography variant="h4" color="info">
-                  {totalBookings}
-                </MDTypography>
-              </MDBox>
-            </Card>
+            <ComplexStatisticsCard
+              color="dark"
+              icon="weekend"
+              title="Total Bookings"
+              count={animatedBookings}
+              percentage={{
+                color: "success",
+                amount: "+0%", // You can calculate the percentage change if needed
+                label: "compared to last week",
+              }}
+            />
           </Grid>
           <Grid item xs={12} md={4}>
-            <Card>
-              <MDBox p={2}>
-                <MDTypography variant="h6">Total Revenue</MDTypography>
-                <MDTypography variant="h4" color="info">
-                  {totalRevenue.toLocaleString("en-IN", { style: "currency", currency: "INR" })}
-                </MDTypography>
-              </MDBox>
-            </Card>
+            <ComplexStatisticsCard
+              icon="leaderboard"
+              title="Total Revenue"
+              count={animatedRevenue.toLocaleString("en-IN", {
+                style: "currency",
+                currency: "INR",
+              })}
+              percentage={{
+                color: "success",
+                amount: "+0%", // You can calculate the percentage change if needed
+                label: "compared to last month",
+              }}
+            />
           </Grid>
           <Grid item xs={12} md={4}>
-            <Card>
-              <MDBox p={2}>
-                <MDTypography variant="h6">Average Booking</MDTypography>
-                <MDTypography variant="h4" color="info">
-                  {averageBooking.toLocaleString("en-IN", { style: "currency", currency: "INR" })}
-                </MDTypography>
-              </MDBox>
-            </Card>
+            <ComplexStatisticsCard
+              color="success"
+              icon="store"
+              title="Average Booking"
+              count={animatedAverage.toLocaleString("en-IN", {
+                style: "currency",
+                currency: "INR",
+              })}
+              percentage={{
+                color: "success",
+                amount: "+0%", // You can calculate the percentage change if needed
+                label: "compared to last week",
+              }}
+            />
           </Grid>
         </Grid>
 

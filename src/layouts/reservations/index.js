@@ -11,7 +11,7 @@ import DataTable from "examples/Tables/DataTable";
 import axios from "axios";
 import Cookies from "js-cookie";
 import debounce from "lodash/debounce";
-import MDButton from "components/MDButton"; // Import MDButton
+import MDButton from "components/MDButton";
 
 function Reservations() {
   const [columns, setColumns] = useState([]);
@@ -29,6 +29,7 @@ function Reservations() {
   const [totalRecords, setTotalRecords] = useState(0);
 
   const fetchReservationData = async () => {
+    setLoading(true); // Show loading state while fetching
     const token = Cookies.get("access_token");
     if (!token) {
       setError("No token found");
@@ -99,7 +100,7 @@ function Reservations() {
 
   const debouncedFilterFetch = useCallback(
     debounce(() => fetchReservationData(), 500),
-    [filters]
+    [filters, currentPage, rowsPerPage]
   );
 
   const handleFilterChange = (event) => {
@@ -109,18 +110,13 @@ function Reservations() {
       [name]: value,
     }));
 
-    if (name === "name" || name === "location") {
-      if (value.length >= 3 || value === "") {
-        debouncedFilterFetch();
-      }
-    } else {
-      fetchReservationData();
-    }
+    // Debounce all filters to avoid excessive calls
+    debouncedFilterFetch();
   };
 
   const handleRowsPerPageChange = (event) => {
     setRowsPerPage(Number(event.target.value));
-    setCurrentPage(1); // Reset to the first page
+    setCurrentPage(1);
   };
 
   const handlePrevious = () => {
@@ -180,13 +176,9 @@ function Reservations() {
       <DashboardNavbar />
       <MDBox pt={6} pb={3} px={2} py={3}>
         <Grid container spacing={6}>
-          {/* Filter Section */}
           <Grid item xs={12}>
             <Card>
               <MDBox p={3}>
-                {/* <MDTypography variant="h6" gutterBottom>
-                  Filters
-                </MDTypography> */}
                 <Grid container spacing={3}>
                   <Grid item xs={3}>
                     <TextField
@@ -213,9 +205,7 @@ function Reservations() {
                       type="date"
                       value={filters.bookedOn}
                       onChange={handleFilterChange}
-                      InputLabelProps={{
-                        shrink: true,
-                      }}
+                      InputLabelProps={{ shrink: true }}
                       fullWidth
                     />
                   </Grid>
@@ -226,9 +216,7 @@ function Reservations() {
                       type="date"
                       value={filters.checkIn}
                       onChange={handleFilterChange}
-                      InputLabelProps={{
-                        shrink: true,
-                      }}
+                      InputLabelProps={{ shrink: true }}
                       fullWidth
                     />
                   </Grid>
@@ -237,7 +225,6 @@ function Reservations() {
             </Card>
           </Grid>
 
-          {/* Data Table Section */}
           <Grid item xs={12}>
             <Card>
               <MDBox
@@ -263,7 +250,6 @@ function Reservations() {
                   noEndBorder
                 />
               </MDBox>
-              {/* Pagination Controls */}
               <MDBox
                 display="flex"
                 justifyContent="space-between"
@@ -275,11 +261,7 @@ function Reservations() {
                   <MDTypography variant="caption" fontWeight="bold">
                     Rows per page:&nbsp;
                   </MDTypography>
-                  <select
-                    value={rowsPerPage}
-                    onChange={handleRowsPerPageChange}
-                    // style={{ marginLeft: "8px", padding: "4px" }}
-                  >
+                  <select value={rowsPerPage} onChange={handleRowsPerPageChange}>
                     <option value={5}>5</option>
                     <option value={10}>10</option>
                   </select>
