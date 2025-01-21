@@ -315,15 +315,10 @@ function Properties() {
                     <MDTypography variant="caption" fontWeight="bold">
                       Rows per page:&nbsp;
                     </MDTypography>
-                    <TextField
-                      select
-                      value={pagination.rowsPerPage}
-                      onChange={handleRowsPerPageChange}
-                      size="small"
-                    >
-                      <MenuItem value={5}>5</MenuItem>
-                      <MenuItem value={10}>10</MenuItem>
-                    </TextField>
+                    <select value={pagination.rowsPerPage} onChange={handleRowsPerPageChange}>
+                      <option value={5}>5</option>
+                      <option value={10}>10</option>
+                    </select>
                   </MDBox>
                   <MDTypography variant="caption" fontWeight="bold">
                     {`${startRecord}-${endRecord} of ${pagination.totalRecords}`}
