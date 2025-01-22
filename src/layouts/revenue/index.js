@@ -54,27 +54,53 @@ function Revenue() {
           { Header: "Hotel ID", accessor: "hotelId" },
           { Header: "Hotel Name", accessor: "hotelName" },
           { Header: "Location", accessor: "geoCode" },
-          { Header: "Total Bookings", accessor: "totalBookings" },
-          { Header: "Action", accessor: "action" },
+          { Header: "Total Bookings", accessor: "totalBookings", align: "center" },
+          { Header: "Action", accessor: "action", align: "center" },
         ];
 
         // Map API data to table rows
         const tableRows = data.map((item) => ({
-          hotelId: item.hotelId,
-          hotelName: item.hotelName,
-          totalBookings: item.totalBookings,
-          geoCode: item.geoCode || "Not Available", // Handle null or empty geoCode
+          hotelId: (
+            <MDBox display="flex" alignItems="center" lineHeight={1}>
+              <MDTypography variant="button" fontWeight="medium">
+                {item.hotelId}
+              </MDTypography>
+            </MDBox>
+          ),
+          hotelName: (
+            <MDBox display="flex" alignItems="center" lineHeight={1}>
+              <MDTypography variant="button" fontWeight="medium">
+                {item.hotelName}
+              </MDTypography>
+            </MDBox>
+          ),
+          geoCode: (
+            <MDBox display="flex" alignItems="center" lineHeight={1}>
+              <MDTypography variant="caption" color="text" fontWeight="medium">
+                {item.geoCode || "Not Available"}
+              </MDTypography>
+            </MDBox>
+          ),
+          totalBookings: (
+            <MDBox display="flex" alignItems="center" lineHeight={1}>
+              <MDTypography variant="caption" color="text" fontWeight="medium">
+                {item.totalBookings}
+              </MDTypography>
+            </MDBox>
+          ),
           action: (
-            <MDButton
-              variant="contained"
-              color="info"
-              size="small"
-              onClick={() =>
-                navigate(`/hotel/${item.hotelId}?name=${encodeURIComponent(item.hotelName)}`)
-              } // Pass hotel name as query param
-            >
-              View
-            </MDButton>
+            <MDBox display="flex" justifyContent="center">
+              <MDButton
+                variant="contained"
+                color="info"
+                size="small"
+                onClick={() =>
+                  navigate(`/hotel/${item.hotelId}?name=${encodeURIComponent(item.hotelName)}`)
+                } // Pass hotel name as query param
+              >
+                View
+              </MDButton>
+            </MDBox>
           ),
         }));
 

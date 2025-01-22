@@ -61,20 +61,29 @@ function Properties() {
         const result = await response.json();
         if (result.success && Array.isArray(result.hotels)) {
           const formattedRows = result.hotels.map((hotel) => ({
-            hotel_id: hotel.hotel_id,
+            // hotel_id: hotel.hotel_id,
+            hotel_id: (
+              <MDBox display="flex" alignItems="center" lineHeight={1}>
+                <MDTypography variant="button" fontWeight="medium">
+                  {hotel.hotel_id}
+                </MDTypography>
+              </MDBox>
+            ),
             name: hotel.name,
             location: hotel.location || "Not Available",
             actions: (
-              <MDButton
-                variant="contained"
-                color="info"
-                size="small"
-                onClick={() =>
-                  navigate(`/hotel/${hotel.hotel_id}?name=${encodeURIComponent(hotel.name)}`)
-                }
-              >
-                View
-              </MDButton>
+              <MDBox display="flex" justifyContent="center">
+                <MDButton
+                  variant="contained"
+                  color="info"
+                  size="small"
+                  onClick={() =>
+                    navigate(`/hotel/${hotel.hotel_id}?name=${encodeURIComponent(hotel.name)}`)
+                  }
+                >
+                  View
+                </MDButton>
+              </MDBox>
             ),
           }));
 
@@ -135,7 +144,7 @@ function Properties() {
     { Header: "Hotel ID", accessor: "hotel_id" },
     { Header: "Hotel Name", accessor: "name" },
     { Header: "Location", accessor: "location" },
-    { Header: "Actions", accessor: "actions" },
+    { Header: "Actions", accessor: "actions", align: "center" },
   ];
 
   const startRecord = (pagination.currentPage - 1) * pagination.rowsPerPage + 1;

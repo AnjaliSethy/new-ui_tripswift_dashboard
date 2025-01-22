@@ -18,6 +18,8 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 import DataTable from "examples/Tables/DataTable";
 import { useNavigate } from "react-router-dom";
+import Chip from "@mui/material/Chip";
+import Typography from "@mui/material/Typography";
 
 function Users() {
   const [columns, setColumns] = useState([]);
@@ -69,32 +71,75 @@ function Users() {
         { Header: "Name", accessor: "name" },
         { Header: "Email", accessor: "email" },
         { Header: "Role", accessor: "role" },
-        { Header: "Status", accessor: "status" },
-        { Header: "Date Joined", accessor: "dateJoined" },
-        { Header: "Actions", accessor: "actions" },
+        { Header: "Status", accessor: "status", align: "center" },
+        { Header: "Date Joined", accessor: "dateJoined", align: "center" },
+        { Header: "Actions", accessor: "actions", align: "center" },
       ];
 
       // Map API data to table rows
       const tableRows = users.map((user) => ({
-        userId: user._id,
+        userId: (
+          <MDBox display="flex" alignItems="center" lineHeight={1}>
+            <Typography variant="button" fontWeight="medium">
+              {user._id}
+            </Typography>
+          </MDBox>
+        ),
+        // name: (
+        //   <MDBox display="flex" alignItems="center" lineHeight={1}>
+        //     <MDTypography variant="button" fontWeight="medium">
+        //       {`${user.firstName} ${user.lastName}`}
+        //     </MDTypography>
+        //   </MDBox>
+        // ),
+        // email: (
+        //   <MDBox display="flex" alignItems="center" lineHeight={1}>
+        //     <Typography variant="caption" color="text" fontWeight="medium">
+        //       {user.email}
+        //     </Typography>
+        //   </MDBox>
+        // ),
+        // role: (
+        //   <Typography variant="caption" color="text" fontWeight="medium">
+        //     {user.role}
+        //   </Typography>
+        // ),
         name: `${user.firstName} ${user.lastName}`,
         email: user.email,
         role: user.role,
-        status: user.bookingCount > 0 ? "Active" : "Inactive", // Example status logic
-        dateJoined: new Date(user.createdAt).toLocaleDateString(),
+        status: (
+          <Chip
+            label={user.bookingCount > 0 ? "Active" : "Inactive"}
+            style={{
+              backgroundColor: user.bookingCount > 0 ? "#4caf50" : "#fc5603", // Green for Active, Red for Inactive
+              color: "white",
+              fontWeight: "bold",
+              borderRadius: "10px",
+              minWidth: "80px",
+              textAlign: "center",
+            }}
+          />
+        ),
+        dateJoined: (
+          <Typography variant="caption" color="text" fontWeight="medium">
+            {new Date(user.createdAt).toLocaleDateString()}
+          </Typography>
+        ),
         actions: (
-          <MDButton
-            variant="contained"
-            color="info"
-            size="small"
-            onClick={() =>
-              navigate(`/user-booking/${user._id}`, {
-                state: { userName: `${user.firstName} ${user.lastName}` }, // Pass user name in state
-              })
-            }
-          >
-            View
-          </MDButton>
+          <MDBox display="flex" justifyContent="center">
+            <MDButton
+              variant="contained"
+              color="info"
+              size="small"
+              onClick={() =>
+                navigate(`/user-booking/${user._id}`, {
+                  state: { userName: `${user.firstName} ${user.lastName}` }, // Pass user name in state
+                })
+              }
+            >
+              View
+            </MDButton>
+          </MDBox>
         ),
       }));
 
@@ -121,9 +166,9 @@ function Users() {
   // Filter users based on filter state
   useEffect(() => {
     const filteredRows = allUsers.filter((user) => {
-      const name = `${user.name}`.toLowerCase();
-      const email = user.email?.toLowerCase() || "";
-      const role = user.role?.toLowerCase() || "";
+      const name = user.name ? `${user.name}`.toLowerCase() : ""; // Ensure name is a string
+      const email = typeof user.email === "string" ? user.email.toLowerCase() : ""; // Ensure email is a string
+      const role = typeof user.role === "string" ? user.role.toLowerCase() : ""; // Ensure role is a string
 
       return (
         name.includes(filters.name.toLowerCase()) &&

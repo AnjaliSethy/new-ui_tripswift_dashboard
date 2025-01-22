@@ -12,6 +12,8 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 import MDButton from "components/MDButton";
 import { useParams, useLocation } from "react-router-dom";
+import Chip from "@mui/material/Chip";
+import Typography from "@mui/material/Typography";
 
 function UserBookingDetails() {
   const { userId } = useParams(); // Get user ID from route
@@ -74,22 +76,59 @@ function UserBookingDetails() {
       setColumns([
         { Header: "Booking ID", accessor: "bookingId" },
         { Header: "Hotel Name", accessor: "hotelName" },
-        { Header: "Status", accessor: "status" },
-        { Header: "Total", accessor: "total" },
         { Header: "Guests", accessor: "guests" },
+        { Header: "Status", accessor: "status", align: "center" },
+        { Header: "Total", accessor: "total", align: "center" },
       ]);
 
       // Map bookings to table rows
       const bookingRows = bookings.map((booking) => ({
-        bookingId: booking.bookingId.endsWith("=")
-          ? booking.bookingId.slice(0, -1)
-          : booking.bookingId,
-        hotelName: `${booking.hotel.name} (${booking.hotel.chainCode})`,
-        status: booking.bookingStatus,
-        total: `${booking.currency} ${booking.total}`,
-        guests: booking.guests
-          .map((guest) => `${guest.title} ${guest.firstName} ${guest.lastName}`)
-          .join(", "),
+        bookingId: (
+          <MDBox display="flex" alignItems="center" lineHeight={1}>
+            <Typography variant="button" fontWeight="medium">
+              {booking.bookingId.endsWith("=") ? booking.bookingId.slice(0, -1) : booking.bookingId}
+            </Typography>
+          </MDBox>
+        ),
+        hotelName: (
+          <MDBox display="flex" alignItems="center" lineHeight={1}>
+            <Typography variant="button" fontWeight="medium">
+              {`${booking.hotel.name} (${booking.hotel.chainCode})`}
+            </Typography>
+          </MDBox>
+        ),
+        guests: (
+          <MDBox display="flex" alignItems="center" lineHeight={1}>
+            <MDTypography variant="button" fontWeight="medium">
+              {" "}
+              {booking.guests
+                .map((guest) => `${guest.title} ${guest.firstName} ${guest.lastName}`)
+                .join(", ")}
+            </MDTypography>
+          </MDBox>
+        ),
+        status: (
+          <MDBox display="flex" alignItems="center" lineHeight={1}>
+            <Chip
+              label={booking.bookingStatus}
+              style={{
+                backgroundColor: booking.bookingStatus === "CONFIRMED" ? "#4caf50" : "#ff9800",
+                color: "white",
+                fontWeight: "bold",
+                borderRadius: "10px",
+                minWidth: "80px",
+                textAlign: "center",
+              }}
+            />
+          </MDBox>
+        ),
+        total: (
+          <MDBox display="flex" alignItems="center" lineHeight={1}>
+            <Typography variant="caption" color="text" fontWeight="medium">
+              {`${booking.currency} ${booking.total}`}
+            </Typography>
+          </MDBox>
+        ),
       }));
 
       setRows(bookingRows);

@@ -12,6 +12,8 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import debounce from "lodash/debounce";
 import MDButton from "components/MDButton";
+import Chip from "@mui/material/Chip";
+import Typography from "@mui/material/Typography";
 
 function Reservations() {
   const [columns, setColumns] = useState([]);
@@ -62,25 +64,84 @@ function Reservations() {
         { Header: "Property Name", accessor: "propertyName" },
         { Header: "Location", accessor: "location" },
         { Header: "Guest Name", accessor: "guestName" },
-        { Header: "Check-In", accessor: "checkIn" },
-        { Header: "Check-Out", accessor: "checkOut" },
-        { Header: "Status", accessor: "status" },
-        { Header: "Reservation No.", accessor: "reservationNo" },
-        { Header: "Booked On", accessor: "bookedOn" },
+        { Header: "Check-In", accessor: "checkIn", align: "center" },
+        { Header: "Check-Out", accessor: "checkOut", align: "center" },
+        { Header: "Status", accessor: "status", align: "center" },
+        { Header: "Reservation No.", accessor: "reservationNo", align: "center" },
+        { Header: "Booked On", accessor: "bookedOn", align: "center" },
       ];
 
+      const truncatePropertyName = (name) => {
+        const words = name.split(" ");
+        if (words.length > 2) {
+          return `${words[0]} ${words[1]} ...`;
+        }
+        return name;
+      };
       const tableRows = bookings.map((booking) => ({
-        propertyId: booking.hotel.id,
-        propertyName: booking.hotel.name,
-        location: booking.city || "Not Available",
-        guestName: booking.guests?.[0]
-          ? `${booking.guests[0].firstName} ${booking.guests[0].lastName}`
-          : "Not Available",
-        checkIn: new Date(booking.checkInDate).toLocaleDateString(),
-        checkOut: new Date(booking.checkOutDate).toLocaleDateString(),
-        status: booking.bookingStatus,
-        reservationNo: booking.confirmationNumber,
-        bookedOn: new Date(booking.createdAt).toLocaleDateString(),
+        propertyId: (
+          <MDBox display="flex" alignItems="center" lineHeight={1}>
+            <Typography variant="button" fontWeight="medium">
+              {booking.hotel.id}
+            </Typography>
+          </MDBox>
+        ),
+        propertyName: (
+          <MDBox display="flex" alignItems="center" lineHeight={1}>
+            <Typography variant="button" fontWeight="medium">
+              {truncatePropertyName(booking.hotel.name)}
+            </Typography>
+          </MDBox>
+        ),
+        location: (
+          <Typography variant="caption" color="text" fontWeight="medium">
+            {booking.city || "Not Available"}
+          </Typography>
+        ),
+        guestName: (
+          <MDBox display="flex" alignItems="center" lineHeight={1}>
+            <MDTypography variant="button" fontWeight="medium">
+              {booking.guests?.[0]
+                ? `${booking.guests[0].firstName} ${booking.guests[0].lastName}`
+                : "Not Available"}
+            </MDTypography>
+          </MDBox>
+        ),
+        checkIn: (
+          <Typography variant="caption" color="text" fontWeight="medium">
+            {new Date(booking.checkInDate).toLocaleDateString()}
+          </Typography>
+        ),
+        checkOut: (
+          <Typography variant="caption" color="text" fontWeight="medium">
+            {new Date(booking.checkOutDate).toLocaleDateString()}
+          </Typography>
+        ),
+        status: (
+          <Chip
+            label={booking.bookingStatus}
+            style={{
+              backgroundColor: booking.bookingStatus === "CONFIRMED" ? "#4caf50" : "#ff9800",
+              color: "white",
+              fontWeight: "bold",
+              borderRadius: "10px",
+              minWidth: "80px",
+              textAlign: "center",
+            }}
+          />
+        ),
+        reservationNo: (
+          <MDBox display="flex" alignItems="center" lineHeight={1}>
+            <Typography variant="caption" color="text" fontWeight="medium">
+              {booking.confirmationNumber}
+            </Typography>
+          </MDBox>
+        ),
+        bookedOn: (
+          <Typography variant="caption" color="text" fontWeight="medium">
+            {new Date(booking.createdAt).toLocaleDateString()}
+          </Typography>
+        ),
       }));
 
       setColumns(tableColumns);

@@ -24,8 +24,9 @@ import routes from "routes";
 import { useMaterialUIController, setMiniSidenav, setOpenConfigurator } from "context";
 
 // Images
-import brandWhite from "assets/images/logo-ct.png";
-import brandDark from "assets/images/logo-ct-dark.png";
+// import brandWhite from "assets/images/logo-ct.png";
+// import brandDark from "assets/images/logo-ct-dark.png";
+import newLogo from "assets/images/tripswift.png"; // Import your new logo
 
 // Import your HotelBookingDetails component
 import HotelBookingDetails from "layouts/hotel-booking/hotel_booking_details";
@@ -117,8 +118,10 @@ export default function App() {
           {/* Sidenav and Configurator */}
           <Sidenav
             color={sidenavColor}
-            brand={(transparentSidenav && !darkMode) || whiteSidenav ? brandDark : brandWhite}
-            brandName="TripSwift"
+            // brand={(transparentSidenav && !darkMode) || whiteSidenav ? brandDark : brandWhite}
+            // brand={transparentSidenav ? brandDark : brandWhite}
+            brand={newLogo} // Use the new logo directly
+            // brandName="TripSwift"
             routes={routes.filter((route) => route.key !== "hotelBookingDetails")}
             onMouseEnter={handleOnMouseEnter}
             onMouseLeave={handleOnMouseLeave}

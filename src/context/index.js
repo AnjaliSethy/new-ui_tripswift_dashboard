@@ -57,7 +57,8 @@ function reducer(state, action) {
 function TripSwiftControllerProvider({ children }) {
   const initialState = {
     miniSidenav: false,
-    transparentSidenav: false,
+    // transparentSidenav: false,
+    transparentSidenav: true, // Set transparency as default
     whiteSidenav: false,
     sidenavColor: "info",
     transparentNavbar: true,

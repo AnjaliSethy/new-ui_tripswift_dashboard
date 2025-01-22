@@ -10,6 +10,7 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 import DataTable from "examples/Tables/DataTable";
 import MDButton from "components/MDButton";
+import Chip from "@mui/material/Chip";
 
 function HotelBookingDetails() {
   const { hotelId } = useParams();
@@ -84,19 +85,59 @@ function HotelBookingDetails() {
   const tableColumns = [
     { Header: "Booking ID", accessor: "bookingId" },
     { Header: "Guest Name", accessor: "guestName" },
-    { Header: "Amount", accessor: "amount" },
-    { Header: "Status", accessor: "status" },
-    { Header: "Date", accessor: "date" },
+    { Header: "Amount", accessor: "amount", align: "center" },
+    { Header: "Status", accessor: "status", align: "center" },
+    { Header: "Date", accessor: "date", align: "center" },
   ];
 
+  // Function to format currency
+  const formatCurrency = (value) =>
+    new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" }).format(value);
+
   const rowData = rows.map((booking) => ({
-    bookingId: booking.bookingId.split("=")[0] || booking.bookingId,
-    guestName: booking.guests[0]
-      ? `${booking.guests[0].firstName} ${booking.guests[0].lastName}`
-      : "N/A",
-    amount: booking.total,
-    status: booking.bookingStatus,
-    date: new Date(booking.createdAt).toLocaleDateString(),
+    bookingId: (
+      <MDBox display="flex" alignItems="center" lineHeight={1}>
+        <MDTypography variant="button" fontWeight="medium">
+          {booking.bookingId.split("=")[0] || booking.bookingId}
+        </MDTypography>
+      </MDBox>
+    ),
+    guestName: (
+      <MDBox display="flex" alignItems="center" lineHeight={1}>
+        <MDTypography variant="button" fontWeight="medium">
+          {booking.guests[0]
+            ? `${booking.guests[0].firstName} ${booking.guests[0].lastName}`
+            : "N/A"}
+        </MDTypography>
+      </MDBox>
+    ),
+    amount: (
+      <MDBox display="flex" alignItems="center" lineHeight={1}>
+        <MDTypography variant="caption" color="text" fontWeight="medium">
+          {formatCurrency(booking.total)}
+        </MDTypography>
+      </MDBox>
+    ),
+    status: (
+      <Chip
+        label={booking.bookingStatus}
+        style={{
+          backgroundColor: booking.bookingStatus === "CONFIRMED" ? "#4caf50" : "#ff9800",
+          color: "white",
+          fontWeight: "bold",
+          borderRadius: "10px",
+          minWidth: "80px",
+          textAlign: "center",
+        }}
+      />
+    ),
+    date: (
+      <MDBox display="flex" alignItems="center" lineHeight={1}>
+        <MDTypography variant="caption" color="text" fontWeight="medium">
+          {new Date(booking.createdAt).toLocaleDateString()}
+        </MDTypography>
+      </MDBox>
+    ),
   }));
 
   const totalRevenue = rows.reduce((acc, booking) => acc + booking.total, 0);
@@ -107,9 +148,6 @@ function HotelBookingDetails() {
       (!endDate || bookingDate <= new Date(endDate))
     );
   });
-
-  const formatCurrency = (value) =>
-    new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" }).format(value);
 
   if (loading)
     return (

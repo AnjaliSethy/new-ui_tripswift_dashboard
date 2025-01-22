@@ -293,8 +293,20 @@ function Analytics() {
     { Header: "User Name", accessor: "name" },
   ];
   const rows = validUsers.map((user) => ({
-    userId: user.userId,
-    name: `${user.firstName} ${user.lastName}`,
+    userId: (
+      <MDBox display="flex" alignItems="center" lineHeight={1}>
+        <MDTypography variant="button" fontWeight="medium">
+          {user.userId}
+        </MDTypography>
+      </MDBox>
+    ),
+    name: (
+      <MDBox display="flex" alignItems="center" lineHeight={1}>
+        <MDTypography variant="button" fontWeight="medium">
+          {`${user.firstName} ${user.lastName}`}
+        </MDTypography>
+      </MDBox>
+    ),
   }));
 
   return (
