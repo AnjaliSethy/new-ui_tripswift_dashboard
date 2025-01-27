@@ -55,6 +55,7 @@ function Basic() {
       }
 
       const data = await response.json();
+      // console.log("@@@@@@@@@@@@@@@@@", data);
       const access_token = data.data.accessToken;
       Cookies.set("access_token", access_token, { secure: true, sameSite: "strict" }); // Store token securely
 
