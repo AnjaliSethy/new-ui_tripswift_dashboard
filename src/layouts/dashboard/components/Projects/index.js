@@ -158,8 +158,10 @@ function Projects() {
       <MDBox>
         {/* Display loading spinner until data is fetched */}
         {loading ? (
-          <MDBox display="flex" justifyContent="center" alignItems="center" p={3}>
-            <CircularProgress />
+          <MDBox display="flex" justifyContent="center" alignItems="center" height="200px">
+            <MDTypography variant="h6" color="info">
+              Loading data, please wait...
+            </MDTypography>
           </MDBox>
         ) : (
           <DataTable
@@ -182,7 +184,7 @@ function Projects() {
       </MDBox>
       {/* Pagination UI */}
       <MDBox display="flex" justifyContent="center" my={3}>
-        <Pagination count={totalPages} color="primary" page={page} onChange={handlePageChange} />
+        <Pagination count={totalPages} color="info" page={page} onChange={handlePageChange} />
       </MDBox>
     </Card>
   );
