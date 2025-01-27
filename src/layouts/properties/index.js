@@ -405,6 +405,35 @@ function Properties() {
   const navigate = useNavigate();
   const totalHotels = 10000; // Example static value
   const totalHotelBookings = 150; // Example static value
+  const [hotelNames, setHotelNames] = useState([]); // Initialize as an empty array
+
+  useEffect(() => {
+    // Function to fetch hotel names
+    const fetchHotelNames = async () => {
+      const token = Cookies.get("access_token");
+      if (!token) {
+        setError("No token found. Please log in.");
+        setLoading(false);
+        return;
+      }
+      try {
+        const response = await fetch("http://localhost:8080/api/v1/amadeus/get/all/hotels/names", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        setHotelNames(data); // Assuming data is an array of hotel names
+      } catch (err) {
+        setError(err.message);
+      }
+    };
+    fetchHotelNames();
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
