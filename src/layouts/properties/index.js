@@ -624,7 +624,7 @@ function Properties() {
                       <MDBox>
                         <MDButton
                           variant="text"
-                          color="primary"
+                          color="info"
                           disabled={pagination.currentPage === 1}
                           onClick={() => handlePageChange(pagination.currentPage - 1)}
                         >
@@ -632,7 +632,7 @@ function Properties() {
                         </MDButton>
                         <MDButton
                           variant="text"
-                          color="primary"
+                          color="info"
                           disabled={pagination.currentPage === pagination.totalPages}
                           onClick={() => handlePageChange(pagination.currentPage + 1)}
                         >

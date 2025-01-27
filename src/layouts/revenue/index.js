@@ -703,7 +703,7 @@ function Revenue() {
                         color="info"
                         disabled={pagination.currentPage === 1}
                         onClick={() => handlePageChange(pagination.currentPage - 1)}
-                        sx={{ fontSize: "14px" }} // Increase font size for the button
+                        sx={{ fontSize: "13px" }} // Increase font size for the button
                       >
                         Previous
                       </MDButton>
@@ -712,7 +712,7 @@ function Revenue() {
                         color="info"
                         disabled={pagination.currentPage === pagination.totalPages}
                         onClick={() => handlePageChange(pagination.currentPage + 1)}
-                        sx={{ fontSize: "14px" }} // Increase font size for the button
+                        sx={{ fontSize: "13px" }} // Increase font size for the button
                       >
                         Next
                       </MDButton>

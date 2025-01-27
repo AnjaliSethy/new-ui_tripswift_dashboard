@@ -600,15 +600,22 @@ function Users() {
                       py={2}
                     >
                       <MDBox>
-                        <MDTypography variant="caption" fontWeight="bold">
+                        <MDTypography variant="caption" fontWeight="bold" sx={{ fontSize: "14px" }}>
                           Rows per page:&nbsp;
                         </MDTypography>
-                        <select value={rowsPerPage} onChange={handleRowsPerPageChange}>
+                        <select
+                          value={rowsPerPage}
+                          onChange={handleRowsPerPageChange}
+                          style={{
+                            fontSize: "14px", // Increase font size for the dropdown
+                            padding: "4px", // Add padding for better appearance
+                          }}
+                        >
                           <option value={5}>5</option>
                           <option value={10}>10</option>
                         </select>
                       </MDBox>
-                      <MDTypography variant="caption" fontWeight="bold">
+                      <MDTypography variant="caption" fontWeight="bold" sx={{ fontSize: "14px" }}>
                         {`${(currentPage - 1) * rowsPerPage + 1}-${Math.min(
                           currentPage * rowsPerPage,
                           filteredData.length
@@ -620,6 +627,7 @@ function Users() {
                           color="info"
                           disabled={currentPage === 1}
                           onClick={handlePrevious}
+                          sx={{ fontSize: "13px" }} // Increase font size for the button
                         >
                           Previous
                         </MDButton>
@@ -628,6 +636,7 @@ function Users() {
                           color="info"
                           disabled={currentPage === Math.ceil(filteredData.length / rowsPerPage)}
                           onClick={handleNext}
+                          sx={{ fontSize: "13px" }} // Increase font size for the button
                         >
                           Next
                         </MDButton>
