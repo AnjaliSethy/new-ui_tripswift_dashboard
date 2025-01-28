@@ -28,8 +28,8 @@ function HotelBookingDetails() {
   const hotelNameFromQuery = new URLSearchParams(window.location.search).get("name");
 
   useEffect(() => {
-    fetchData(); // Fetch data when the component mounts
-  }, [hotelId, pagination.currentPage, pagination.rowsPerPage]); // Add dependencies for pagination
+    fetchData(); // Fetch data when the component mounts or pagination changes
+  }, [hotelId, pagination.currentPage, pagination.rowsPerPage]);
 
   const fetchData = async () => {
     const token = Cookies.get("access_token");
@@ -44,7 +44,7 @@ function HotelBookingDetails() {
     try {
       const { currentPage, rowsPerPage } = pagination;
       const response = await fetch(
-        `http://localhost:8080/api/v1/amadeus/user/details/by/hotel/id?hotelid=${hotelId}&page=${currentPage}&rowsPerPage=${rowsPerPage}`,
+        `http://localhost:8080/api/v1/amadeus/user/details/by/hotel/id?hotelid=${hotelId}&page=${currentPage}&limit=${rowsPerPage}`,
         {
           method: "GET",
           headers: { Authorization: `Bearer ${token}` },
@@ -145,12 +145,6 @@ function HotelBookingDetails() {
 
   const totalRevenue = rows.reduce((acc, booking) => acc + booking.total, 0);
 
-  // Calculate the rows to display based on pagination
-  const displayedRows = rowData.slice(
-    (pagination.currentPage - 1) * pagination.rowsPerPage,
-    pagination.currentPage * pagination.rowsPerPage
-  );
-
   if (loading)
     return (
       <DashboardLayout>
@@ -245,7 +239,7 @@ function HotelBookingDetails() {
               </MDBox>
               <MDBox pt={3} pb={3}>
                 <DataTable
-                  table={{ columns: tableColumns, rows: displayedRows }}
+                  table={{ columns: tableColumns, rows: rowData }}
                   isSorted={false}
                   entriesPerPage={false}
                   showTotalEntries={false}
