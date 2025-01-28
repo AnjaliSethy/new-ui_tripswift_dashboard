@@ -14,8 +14,12 @@ import MDButton from "components/MDButton";
 import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
 import Autocomplete from "@mui/material/Autocomplete";
+// import DefaultInfoCard from "examples/Cards/InfoCards/DefaultInfoCard";
 
 function Properties() {
+  // Define your variables here
+  // const totalHotels = 10000; // Example static value
+  // const totalHotelBookings = 150; // Example static value
   const [rows, setRows] = useState([]);
   const [locationText, setLocationText] = useState(""); // Separate state for location filter
   const [pagination, setPagination] = useState({
@@ -63,7 +67,7 @@ function Properties() {
   useEffect(() => {
     // Fetch all hotel data on initial load
     fetchData();
-  }, []);
+  }, [pagination.currentPage]); // Add pagination.currentPage to the dependency array
 
   const fetchData = async () => {
     const token = Cookies.get("access_token");
@@ -274,6 +278,53 @@ function Properties() {
     <DashboardLayout>
       <DashboardNavbar />
       <MDBox px={2} py={6}>
+        {/* Stats Cards Section */}
+        {/* <Grid container spacing={10} mb={6}>
+          <Grid item xs={12} sm={6} md={6}>
+            <Card>
+              <MDBox py={3} px={2} textAlign="center">
+                <MDTypography variant="h5" fontWeight="bold" color="info">
+                  50
+                </MDTypography>
+                <MDTypography variant="subtitle1" color="text">
+                  Total Active Hotels
+                </MDTypography>
+              </MDBox>
+            </Card>
+          </Grid>
+          <Grid item xs={12} sm={6} md={6}>
+            <Card>
+              <MDBox py={3} px={2} textAlign="center">
+                <MDTypography variant="h5" fontWeight="bold" color="info">
+                  200
+                </MDTypography>
+                <MDTypography variant="subtitle1" color="text">
+                  Total Hotels Booked
+                </MDTypography>
+              </MDBox>
+            </Card>
+          </Grid>
+        </Grid> */}
+        {/* <MDBox mb={6}>
+          <Grid container justifyContent="center" spacing={15}>
+            <Grid item xs={12} sm={8} md={6} xl={4}>
+              <DefaultInfoCard
+                icon="show_chart"
+                title="Active Hotels"
+                description="Total Active Hotels"
+                value={`$${totalHotels.toLocaleString()}`} // Static value with formatting
+              />
+            </Grid>
+            <Grid item xs={12} sm={8} md={6} xl={4}>
+              <DefaultInfoCard
+                icon="bar_chart"
+                title="Hotel Bookings"
+                description="Total Hotel Booked"
+                value={totalHotelBookings.toLocaleString()} // Static value with formatting
+              />
+            </Grid>
+          </Grid>
+        </MDBox> */}
         <Grid container spacing={6}>
           <Grid item xs={12}>
             <Card>
