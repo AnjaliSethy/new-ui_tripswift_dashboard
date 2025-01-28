@@ -627,7 +627,7 @@ function Revenue() {
                     "& .MuiOutlinedInput-root": {
                       // Ensure dropdown button alignment
                       padding: "3px", // Padding inside the input field
-                      height: "40px", // Height of the input field
+                      height: "35px", // Height of the input field
                     },
                     "& .MuiInputLabel-root": {
                       // Styling the label

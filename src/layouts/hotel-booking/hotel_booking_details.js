@@ -361,50 +361,54 @@ function HotelBookingDetails() {
   const hotelNameFromQuery = new URLSearchParams(window.location.search).get("name");
 
   useEffect(() => {
-    const fetchData = async () => {
-      const token = Cookies.get("access_token");
-      if (!token) {
-        setError("No token found. Please log in.");
-        setLoading(false);
-        return;
-      }
+    fetchData(); // Fetch data when the component mounts
+  }, [hotelId, pagination.currentPage, pagination.rowsPerPage]); // Add dependencies for pagination
 
-      try {
-        const { currentPage, rowsPerPage } = pagination;
-        const response = await fetch(
-          `http://localhost:8080/api/v1/amadeus/user/details/by/hotel/id?hotelid=${hotelId}&page=${currentPage}&rowsPerPage=${rowsPerPage}`,
-          {
-            method: "GET",
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+  const fetchData = async () => {
+    const token = Cookies.get("access_token");
+    if (!token) {
+      setError("No token found. Please log in.");
+      setLoading(false);
+      return;
+    }
 
-        const result = await response.json();
-        if (result.success) {
-          setRows(result.bookingDetails || []);
-          setPagination((prev) => ({
-            ...prev,
-            totalRecords: result.pagination.totalCount,
-            totalPages: result.pagination.totalPages,
-          }));
-        } else {
-          setError("Failed to fetch data.");
+    setLoading(true);
+
+    try {
+      const { currentPage, rowsPerPage } = pagination;
+      const response = await fetch(
+        `http://localhost:8080/api/v1/amadeus/user/details/by/hotel/id?hotelid=${hotelId}&page=${currentPage}&rowsPerPage=${rowsPerPage}`,
+        {
+          method: "GET",
+          headers: { Authorization: `Bearer ${token}` },
         }
-      } catch {
-        setError("An error occurred while fetching data.");
-      } finally {
-        setLoading(false);
-      }
-    };
+      );
 
-    fetchData();
-  }, [hotelId, pagination.currentPage, pagination.rowsPerPage]);
+      const result = await response.json();
+      if (result.success) {
+        setRows(result.bookingDetails || []);
+        setPagination((prev) => ({
+          ...prev,
+          totalRecords: result.pagination.totalCount,
+          totalPages: result.pagination.totalPages,
+        }));
+      } else {
+        setError("Failed to fetch data.");
+      }
+    } catch {
+      setError("An error occurred while fetching data.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handlePageChange = (newPage) => {
-    setPagination((prev) => ({
-      ...prev,
-      currentPage: newPage,
-    }));
+    if (newPage > 0 && newPage <= pagination.totalPages) {
+      setPagination((prev) => ({
+        ...prev,
+        currentPage: newPage,
+      }));
+    }
   };
 
   const handleRowsPerPageChange = (event) => {
@@ -607,12 +611,16 @@ function HotelBookingDetails() {
                   </MDTypography>
                   <MDBox>
                     <MDButton
+                      variant="text"
+                      color="info"
                       disabled={pagination.currentPage === 1}
                       onClick={() => handlePageChange(pagination.currentPage - 1)}
                     >
                       Previous
                     </MDButton>
                     <MDButton
+                      variant="text"
+                      color="info"
                       disabled={pagination.currentPage === pagination.totalPages}
                       onClick={() => handlePageChange(pagination.currentPage + 1)}
                     >

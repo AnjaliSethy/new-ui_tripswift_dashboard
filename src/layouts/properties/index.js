@@ -712,6 +712,7 @@ import Autocomplete from "@mui/material/Autocomplete";
 
 function Properties() {
   const [rows, setRows] = useState([]);
+  const [locationText, setLocationText] = useState(""); // Separate state for location filter
   const [pagination, setPagination] = useState({
     currentPage: 1,
     totalPages: 1,
@@ -723,11 +724,11 @@ function Properties() {
   const [filterText, setFilterText] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("choose");
   const [hotelNames, setHotelNames] = useState([]);
-  const [filteredHotelNames, setFilteredHotelNames] = useState([]);
+  const [autocompleteInput, setAutocompleteInput] = useState(""); // New state for autocomplete input
   const navigate = useNavigate();
 
-  // Fetch hotel names for autocomplete suggestions
   useEffect(() => {
+    // Fetch hotel names for autocomplete suggestions
     const fetchHotelNames = async () => {
       const token = Cookies.get("access_token");
       if (!token) {
@@ -742,18 +743,11 @@ function Properties() {
             Authorization: `Bearer ${token}`,
           },
         });
-
         if (!response.ok) {
-          throw new Error(`Error ${response.status}: ${response.statusText}`);
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
-
         const data = await response.json();
-        if (Array.isArray(data) && data.length > 0) {
-          setHotelNames(data);
-          setFilteredHotelNames(data);
-        } else {
-          setHotelNames([]);
-        }
+        setHotelNames(data.hotelNames); // Assuming data.hotelNames is an array of hotel names
       } catch (err) {
         setError(err.message);
       }
@@ -761,8 +755,12 @@ function Properties() {
     fetchHotelNames();
   }, []);
 
-  // Fetch property details
-  const fetchData = async (page = 1, rowsPerPage = pagination.rowsPerPage, hotelName = null) => {
+  useEffect(() => {
+    // Fetch all hotel data on initial load
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
     const token = Cookies.get("access_token");
     if (!token) {
       setError("No token found. Please log in.");
@@ -773,12 +771,8 @@ function Properties() {
     setLoading(true);
 
     try {
-      const queryParams = hotelName
-        ? `hotelName=${encodeURIComponent(hotelName)}`
-        : `page=${page}&limit=${rowsPerPage}`;
-
       const response = await fetch(
-        `http://localhost:8080/api/v1/amadeus/proporties/details?${queryParams}`,
+        `http://localhost:8080/api/v1/amadeus/proporties/details?page=${pagination.currentPage}&limit=${pagination.rowsPerPage}`,
         {
           method: "GET",
           headers: {
@@ -822,13 +816,12 @@ function Properties() {
         setRows(formattedRows);
         setPagination((prev) => ({
           ...prev,
-          currentPage: result.pagination.currentPage || 1,
-          totalPages: result.pagination.totalPages || 1,
-          totalRecords: result.pagination.totalHotels || result.hotels.length,
+          currentPage: result.pagination.currentPage,
+          totalPages: result.pagination.totalPages,
+          totalRecords: result.pagination.totalHotels,
         }));
       } else {
-        setRows([]);
-        setError("No data found.");
+        setError("Failed to fetch data.");
       }
     } catch (err) {
       console.error("Error fetching data:", err);
@@ -838,27 +831,125 @@ function Properties() {
     }
   };
 
-  // Fetch data on pagination or filter change
-  useEffect(() => {
-    if (selectedFilter === "choose" || !filterText) {
-      fetchData(pagination.currentPage, pagination.rowsPerPage);
-    }
-  }, [pagination.currentPage, pagination.rowsPerPage, selectedFilter]);
+  const handleFilterChange = (e) => {
+    const value = e.target.value;
+    setSelectedFilter(value);
+    setFilterText(""); // Reset filter text when changing filter type
 
-  // Handle filter text change for autocomplete suggestions
-  const handleFilterTextChange = (e) => {
-    setFilterText(e.target.value);
-    const filtered = hotelNames.filter((name) =>
-      name.toLowerCase().includes(e.target.value.toLowerCase())
-    );
-    setFilteredHotelNames(filtered);
+    if (value === "choose") {
+      fetchData(); // Fetch all data when "All" is selected
+    }
   };
 
-  // Handle hotel selection
-  const handleHotelNameSelect = (selectedName) => {
+  const handleLocationChange = (e) => {
+    setLocationText(e.target.value);
+  };
+
+  const handleHotelNameSelect = (event, selectedName) => {
     if (!selectedName) return;
-    setFilterText(selectedName);
-    fetchData(1, pagination.rowsPerPage, selectedName); // Fetch data filtered by hotel name
+    setFilterText(selectedName); // Set filter text only when a name is selected
+    setAutocompleteInput(selectedName); // Update autocomplete input
+    fetchHotelDetails(selectedName); // Fetch data filtered by hotel name
+  };
+
+  const fetchHotelDetails = async (hotelName) => {
+    const token = Cookies.get("access_token");
+    if (!token) {
+      setError("No token found. Please log in.");
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await fetch(
+        `http://localhost:8080/api/v1/amadeus/proporties/details?name=${encodeURIComponent(
+          hotelName
+        )}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      if (result.success && Array.isArray(result.hotels)) {
+        const formattedRows = result.hotels.map((hotel) => ({
+          hotel_id: (
+            <MDBox display="flex" alignItems="center" lineHeight={1}>
+              <MDTypography variant="button" fontWeight="medium">
+                {hotel.hotel_id}
+              </MDTypography>
+            </MDBox>
+          ),
+          name: hotel.name,
+          location: hotel.location || "Not Available",
+          actions: (
+            <MDBox display="flex" justifyContent="center">
+              <MDButton
+                variant="contained"
+                color="info"
+                size="small"
+                onClick={() =>
+                  navigate(`/hotel/${hotel.hotel_id}?name=${encodeURIComponent(hotel.name)}`)
+                }
+              >
+                View
+              </MDButton>
+            </MDBox>
+          ),
+        }));
+
+        setRows(formattedRows);
+        setPagination((prev) => ({
+          ...prev,
+          currentPage: 1,
+          totalPages: 1,
+          totalRecords: result.pagination.totalHotels,
+        }));
+      } else {
+        setError("Failed to fetch data.");
+      }
+    } catch (err) {
+      console.error("Error fetching data:", err);
+      setError(err.message || "An error occurred while fetching data.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredHotelNames = hotelNames.filter(
+    (name) => name.toLowerCase().includes(autocompleteInput.toLowerCase()) // Use autocompleteInput for filtering
+  );
+
+  const filteredRows = rows.filter((row) => {
+    if (selectedFilter === "Hotel Name") {
+      return row.name.toLowerCase().includes(filterText.toLowerCase());
+    } else if (selectedFilter === "Location") {
+      return row.location?.toLowerCase().includes(locationText.toLowerCase());
+    }
+    return true; // Show all rows if no filter is selected
+  });
+
+  const handlePageChange = (newPage) => {
+    if (newPage > 0 && newPage <= pagination.totalPages) {
+      setPagination((prev) => ({ ...prev, currentPage: newPage }));
+    }
+  };
+
+  const handleRowsPerPageChange = (event) => {
+    setPagination((prev) => ({
+      ...prev,
+      rowsPerPage: parseInt(event.target.value, 10),
+      currentPage: 1, // Reset to first page when changing rows per page
+    }));
   };
 
   const columns = [
@@ -900,15 +991,21 @@ function Properties() {
                   <TextField
                     select
                     value={selectedFilter}
-                    onChange={(e) => {
-                      setSelectedFilter(e.target.value);
-                      setFilterText("");
-                    }}
+                    onChange={handleFilterChange}
                     label="Filter By"
                     size="small"
+                    sx={{
+                      width: "100px", // Adjust width
+                    }}
+                    InputProps={{
+                      sx: {
+                        height: "35px", // Match height to text field
+                      },
+                    }}
                   >
                     <MenuItem value="choose">All</MenuItem>
                     <MenuItem value="Hotel Name">Hotel Name</MenuItem>
+                    <MenuItem value="Location">Location</MenuItem>
                   </TextField>
                   {selectedFilter === "Hotel Name" && (
                     <Autocomplete
@@ -916,17 +1013,48 @@ function Properties() {
                       options={filteredHotelNames}
                       renderInput={(params) => (
                         <TextField
+                          sx={{
+                            width: "200px", // Adjust width
+                            height: "35px", // Ensure height consistency
+                          }}
+                          InputProps={{
+                            sx: {
+                              height: "35px", // Match height explicitly
+                            },
+                          }}
                           {...params}
                           label="Search Hotel Name"
                           size="small"
-                          onChange={handleFilterTextChange}
-                          value={filterText}
+                          onChange={(e) => setAutocompleteInput(e.target.value)} // Update autocomplete input
+                          value={autocompleteInput} // Use autocompleteInput for value
                         />
                       )}
-                      onChange={(event, value) => handleHotelNameSelect(value)}
+                      onChange={handleHotelNameSelect}
+                      inputValue={autocompleteInput} // Use autocompleteInput for inputValue
+                      onInputChange={(event, newInputValue) => {
+                        setAutocompleteInput(newInputValue); // Update autocomplete input
+                      }}
+                    />
+                  )}
+                  {selectedFilter === "Location" && (
+                    <TextField
+                      size="small"
+                      placeholder="Filter by Location"
+                      value={locationText}
+                      onChange={handleLocationChange} // Use the new function here
+                      sx={{
+                        width: "200px", // Adjust width
+                        height: "35px", // Ensure height consistency
+                      }}
+                      InputProps={{
+                        sx: {
+                          height: "35px", // Match height explicitly
+                        },
+                      }}
                     />
                   )}
                 </MDBox>
+
                 {loading ? (
                   <MDBox display="flex" justifyContent="center" alignItems="center" height="200px">
                     <MDTypography variant="h6" color="info">
@@ -936,7 +1064,7 @@ function Properties() {
                 ) : (
                   <>
                     <DataTable
-                      table={{ columns, rows }}
+                      table={{ columns, rows: filteredRows }}
                       isSorted={false}
                       entriesPerPage={false}
                       showTotalEntries={false}
@@ -953,16 +1081,7 @@ function Properties() {
                         <MDTypography variant="caption" fontWeight="bold">
                           Rows per page:&nbsp;
                         </MDTypography>
-                        <select
-                          value={pagination.rowsPerPage}
-                          onChange={(e) =>
-                            setPagination((prev) => ({
-                              ...prev,
-                              rowsPerPage: parseInt(e.target.value, 10),
-                              currentPage: 1,
-                            }))
-                          }
-                        >
+                        <select value={pagination.rowsPerPage} onChange={handleRowsPerPageChange}>
                           <option value={5}>5</option>
                           <option value={10}>10</option>
                         </select>
@@ -975,12 +1094,7 @@ function Properties() {
                           variant="text"
                           color="info"
                           disabled={pagination.currentPage === 1}
-                          onClick={() =>
-                            setPagination((prev) => ({
-                              ...prev,
-                              currentPage: prev.currentPage - 1,
-                            }))
-                          }
+                          onClick={() => handlePageChange(pagination.currentPage - 1)}
                         >
                           Previous
                         </MDButton>
@@ -988,12 +1102,7 @@ function Properties() {
                           variant="text"
                           color="info"
                           disabled={pagination.currentPage === pagination.totalPages}
-                          onClick={() =>
-                            setPagination((prev) => ({
-                              ...prev,
-                              currentPage: prev.currentPage + 1,
-                            }))
-                          }
+                          onClick={() => handlePageChange(pagination.currentPage + 1)}
                         >
                           Next
                         </MDButton>
