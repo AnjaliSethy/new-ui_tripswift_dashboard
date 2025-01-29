@@ -13,6 +13,7 @@ import MDButton from "components/MDButton";
 import Cookies from "js-cookie";
 import axios from "axios";
 import Chip from "@mui/material/Chip";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 
 function Users() {
   const [allUsers, setAllUsers] = useState([]);
@@ -114,6 +115,7 @@ function Users() {
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage
   );
+  const navigate = useNavigate(); // Define navigate inside the component
 
   const tableColumns = [
     { Header: "User ID", accessor: "userId" },
@@ -122,6 +124,7 @@ function Users() {
     { Header: "Role", accessor: "role" },
     { Header: "Status", accessor: "status", align: "center" },
     { Header: "Date Joined", accessor: "dateJoined", align: "center" },
+    { Header: "Actions", accessor: "actions", align: "center" },
   ];
 
   const tableRows = currentRows.map((user) => ({
@@ -172,6 +175,20 @@ function Users() {
           {new Date(user.createdAt).toLocaleDateString()}
         </MDTypography>
       </MDBox>
+    ),
+    actions: (
+      <MDButton
+        variant="contained"
+        color="info"
+        size="small"
+        onClick={() =>
+          navigate(`/user-booking/${user._id}`, {
+            state: { userName: `${user.firstName} ${user.lastName}` }, // Ensure this is correct
+          })
+        }
+      >
+        View
+      </MDButton>
     ),
   }));
 
@@ -276,6 +293,7 @@ function Users() {
                           style={{
                             fontSize: "14px", // Increase font size for the dropdown
                             padding: "4px", // Add padding for better appearance
+                            marginLeft: "8px", // Adds space between label and dropdown
                           }}
                         >
                           <option value={5}>5</option>

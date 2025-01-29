@@ -366,29 +366,34 @@ function Properties() {
                   {selectedFilter === "Hotel Name" && (
                     <Autocomplete
                       freeSolo
-                      options={filteredHotelNames}
+                      options={hotelNames.map((name, index) => ({ id: index, label: name }))} // Add unique id
+                      getOptionLabel={(option) => option.label} // Ensure correct display
+                      renderOption={(props, option) => (
+                        <li {...props} key={option.id}>
+                          {option.label}
+                        </li> // Use unique key
+                      )}
                       renderInput={(params) => (
                         <TextField
-                          sx={{
-                            width: "200px", // Adjust width
-                            height: "35px", // Ensure height consistency
-                          }}
-                          InputProps={{
-                            sx: {
-                              height: "35px", // Match height explicitly
-                            },
-                          }}
                           {...params}
                           label="Search Hotel Name"
                           size="small"
-                          onChange={(e) => setAutocompleteInput(e.target.value)} // Update autocomplete input
-                          value={autocompleteInput} // Use autocompleteInput for value
+                          onChange={(e) => setAutocompleteInput(e.target.value)}
+                          value={autocompleteInput}
+                          sx={{
+                            width: "200px", // Adjust width
+                          }}
                         />
                       )}
-                      onChange={handleHotelNameSelect}
-                      inputValue={autocompleteInput} // Use autocompleteInput for inputValue
+                      onChange={(event, selectedOption) => {
+                        if (!selectedOption) return;
+                        setFilterText(selectedOption.label); // Update filter text
+                        setAutocompleteInput(selectedOption.label);
+                        fetchHotelDetails(selectedOption.label); // Fetch filtered data
+                      }}
+                      inputValue={autocompleteInput}
                       onInputChange={(event, newInputValue) => {
-                        setAutocompleteInput(newInputValue); // Update autocomplete input
+                        setAutocompleteInput(newInputValue);
                       }}
                     />
                   )}
@@ -434,15 +439,23 @@ function Properties() {
                       p={4}
                     >
                       <MDBox>
-                        <MDTypography variant="caption" fontWeight="bold">
+                        <MDTypography variant="caption" fontWeight="bold" sx={{ fontSize: "14px" }}>
                           Rows per page:&nbsp;
                         </MDTypography>
-                        <select value={pagination.rowsPerPage} onChange={handleRowsPerPageChange}>
+                        <select
+                          value={pagination.rowsPerPage}
+                          onChange={handleRowsPerPageChange}
+                          style={{
+                            fontSize: "14px", // Increase font size for the dropdown
+                            padding: "4px", // Add padding for better appearance
+                            marginLeft: "8px", // Adds space between label and dropdown
+                          }}
+                        >
                           <option value={5}>5</option>
                           <option value={10}>10</option>
                         </select>
                       </MDBox>
-                      <MDTypography variant="caption" fontWeight="bold">
+                      <MDTypography variant="caption" fontWeight="bold" sx={{ fontSize: "14px" }}>
                         {`${startRecord}-${endRecord} of ${pagination.totalRecords}`}
                       </MDTypography>
                       <MDBox>
@@ -451,6 +464,7 @@ function Properties() {
                           color="info"
                           disabled={pagination.currentPage === 1}
                           onClick={() => handlePageChange(pagination.currentPage - 1)}
+                          sx={{ fontSize: "13px" }}
                         >
                           Previous
                         </MDButton>
@@ -459,6 +473,7 @@ function Properties() {
                           color="info"
                           disabled={pagination.currentPage === pagination.totalPages}
                           onClick={() => handlePageChange(pagination.currentPage + 1)}
+                          sx={{ fontSize: "13px" }} // Increase font size for the button
                         >
                           Next
                         </MDButton>

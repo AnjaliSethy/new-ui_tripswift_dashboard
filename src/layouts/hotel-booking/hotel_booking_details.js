@@ -23,9 +23,19 @@ function HotelBookingDetails() {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [startDate, setStartDate] = useState(""); // Initialize startDate
+  const [endDate, setEndDate] = useState(""); // Initialize endDate
   const hotelNameFromQuery = new URLSearchParams(window.location.search).get("name");
+
+  // Set default date values for startDate and endDate
+  useEffect(() => {
+    const today = new Date();
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(today.getDate() - 7);
+
+    setStartDate(sevenDaysAgo.toISOString().split("T")[0]); // Format to YYYY-MM-DD
+    setEndDate(today.toISOString().split("T")[0]); // Format to YYYY-MM-DD
+  }, []);
 
   useEffect(() => {
     fetchData(); // Fetch data when the component mounts or pagination changes
@@ -99,14 +109,14 @@ function HotelBookingDetails() {
 
   const rowData = rows.map((booking) => ({
     bookingId: (
-      <MDBox display="flex" alignItems="center" lineHeight={1}>
+      <MDBox key={booking.bookingId} display="flex" alignItems="center" lineHeight={1}>
         <MDTypography variant="button" fontWeight="medium">
           {booking.bookingId.split("=")[0] || booking.bookingId}
         </MDTypography>
       </MDBox>
     ),
     guestName: (
-      <MDBox display="flex" alignItems="center" lineHeight={1}>
+      <MDBox key={booking.bookingId + "-guest"} display="flex" alignItems="center" lineHeight={1}>
         <MDTypography variant="button" fontWeight="medium">
           {booking.guests[0]
             ? `${booking.guests[0].firstName} ${booking.guests[0].lastName}`
@@ -115,7 +125,7 @@ function HotelBookingDetails() {
       </MDBox>
     ),
     amount: (
-      <MDBox display="flex" alignItems="center" lineHeight={1}>
+      <MDBox key={booking.bookingId + "-amount"} display="flex" alignItems="center" lineHeight={1}>
         <MDTypography variant="caption" color="text" fontWeight="medium">
           {formatCurrency(booking.total)}
         </MDTypography>
@@ -123,6 +133,7 @@ function HotelBookingDetails() {
     ),
     status: (
       <Chip
+        key={booking.bookingId + "-status"}
         label={booking.bookingStatus}
         style={{
           backgroundColor: booking.bookingStatus === "CONFIRMED" ? "#4caf50" : "#ff9800",
@@ -135,7 +146,7 @@ function HotelBookingDetails() {
       />
     ),
     date: (
-      <MDBox display="flex" alignItems="center" lineHeight={1}>
+      <MDBox key={booking.bookingId + "-date"} display="flex" alignItems="center" lineHeight={1}>
         <MDTypography variant="caption" color="text" fontWeight="medium">
           {new Date(booking.createdAt).toLocaleDateString()}
         </MDTypography>
@@ -253,16 +264,24 @@ function HotelBookingDetails() {
                   p={4}
                 >
                   <MDBox>
-                    <MDTypography variant="caption" fontWeight="bold">
+                    <MDTypography variant="caption" fontWeight="bold" sx={{ fontSize: "14px" }}>
                       Rows per page:
                     </MDTypography>
-                    <select value={pagination.rowsPerPage} onChange={handleRowsPerPageChange}>
+                    <select
+                      value={pagination.rowsPerPage}
+                      onChange={handleRowsPerPageChange}
+                      style={{
+                        fontSize: "14px", // Increase font size for the dropdown
+                        padding: "4px", // Add padding for better appearance
+                        marginLeft: "8px", // Adds space between label and dropdown
+                      }}
+                    >
                       <option value={5}>5</option>
                       <option value={10}>10</option>
                       <option value={20}>20</option>
                     </select>
                   </MDBox>
-                  <MDTypography variant="caption" fontWeight="bold">
+                  <MDTypography variant="caption" fontWeight="bold" sx={{ fontSize: "14px" }}>
                     {`${(pagination.currentPage - 1) * pagination.rowsPerPage + 1} - 
                       ${Math.min(
                         pagination.currentPage * pagination.rowsPerPage,
@@ -276,6 +295,7 @@ function HotelBookingDetails() {
                       color="info"
                       disabled={pagination.currentPage === 1}
                       onClick={() => handlePageChange(pagination.currentPage - 1)}
+                      sx={{ fontSize: "13px" }}
                     >
                       Previous
                     </MDButton>
@@ -284,6 +304,7 @@ function HotelBookingDetails() {
                       color="info"
                       disabled={pagination.currentPage === pagination.totalPages}
                       onClick={() => handlePageChange(pagination.currentPage + 1)}
+                      sx={{ fontSize: "13px" }}
                     >
                       Next
                     </MDButton>

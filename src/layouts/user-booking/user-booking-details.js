@@ -19,6 +19,7 @@ function UserBookingDetails() {
   const { userId } = useParams(); // Get user ID from route
   const location = useLocation(); // Access location
   const { userName } = location.state || {}; // Retrieve userName from state
+  console.log("User Name Received:", userName); // Debugging check
   const [columns, setColumns] = useState([]);
   const [rows, setRows] = useState([]);
   const [pagination, setPagination] = useState({
@@ -146,6 +147,18 @@ function UserBookingDetails() {
       setLoading(false);
     }
   }, [userId, pagination.currentPage, pagination.rowsPerPage, dateRange]);
+
+  // Set default date values for startDate and endDate
+  useEffect(() => {
+    const today = new Date();
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(today.getDate() - 7);
+
+    setDateRange({
+      startDate: sevenDaysAgo.toISOString().split("T")[0],
+      endDate: today.toISOString().split("T")[0],
+    });
+  }, []);
 
   useEffect(() => {
     fetchBookings();
@@ -319,32 +332,42 @@ function UserBookingDetails() {
                   py={2}
                 >
                   <MDBox>
-                    <MDTypography variant="caption" fontWeight="bold">
+                    <MDTypography variant="caption" fontWeight="bold" sx={{ fontSize: "14px" }}>
                       Rows per page:&nbsp;
                     </MDTypography>
-                    <select value={pagination.rowsPerPage} onChange={handleRowsPerPageChange}>
+                    <select
+                      value={pagination.rowsPerPage}
+                      onChange={handleRowsPerPageChange}
+                      style={{
+                        fontSize: "14px", // Increase font size for the dropdown
+                        padding: "4px", // Add padding for better appearance
+                        marginLeft: "8px", // Adds space between label and dropdown
+                      }}
+                    >
                       <option value={5}>5</option>
                       <option value={10}>10</option>
                       <option value={20}>20</option>
                     </select>
                   </MDBox>
-                  <MDTypography variant="caption" fontWeight="bold">
+                  <MDTypography variant="caption" fontWeight="bold" sx={{ fontSize: "14px" }}>
                     {`${startRecord}-${endRecord} of ${pagination.totalRecords}`}
                   </MDTypography>
                   <MDBox>
                     <MDButton
                       variant="text"
-                      color="primary"
+                      color="info"
                       disabled={pagination.currentPage === 1}
                       onClick={() => handlePageChange(pagination.currentPage - 1)}
+                      sx={{ fontSize: "13px" }}
                     >
                       Previous
                     </MDButton>
                     <MDButton
                       variant="text"
-                      color="primary"
+                      color="info"
                       disabled={pagination.currentPage === pagination.totalPages}
                       onClick={() => handlePageChange(pagination.currentPage + 1)}
+                      sx={{ fontSize: "13px" }}
                     >
                       Next
                     </MDButton>

@@ -262,7 +262,7 @@ function Revenue() {
                   </MDTypography>
                 </MDBox>
               ) : (
-                <MDBox pt={3} pb={3}>
+                <MDBox pb={3}>
                   <DataTable
                     table={{ columns, rows }}
                     isSorted={false}
@@ -294,6 +294,7 @@ function Revenue() {
                         style={{
                           fontSize: "14px", // Increase font size for the dropdown
                           padding: "4px", // Add padding for better appearance
+                          marginLeft: "8px", // Adds space between label and dropdown
                         }}
                       >
                         <option value={5}>5</option>

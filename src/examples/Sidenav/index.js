@@ -14,7 +14,6 @@ import Icon from "@mui/material/Icon";
 
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
-import MDButton from "components/MDButton";
 
 import SidenavCollapse from "examples/Sidenav/SidenavCollapse";
 
@@ -31,7 +30,7 @@ import {
 
 function Sidenav({ color, brand, brandName, routes, ...rest }) {
   const [controller, dispatch] = useMaterialUIController();
-  const { miniSidenav, transparentSidenav, whiteSidenav, darkMode, sidenavColor } = controller;
+  const { miniSidenav, transparentSidenav, whiteSidenav, darkMode } = controller;
   const location = useLocation();
   const collapseName = location.pathname.replace("/", "");
 
@@ -46,26 +45,19 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
   const closeSidenav = () => setMiniSidenav(dispatch, true);
 
   useEffect(() => {
-    // A function that sets the mini state of the sidenav.
     function handleMiniSidenav() {
       setMiniSidenav(dispatch, window.innerWidth < 1200);
       setTransparentSidenav(dispatch, window.innerWidth < 1200 ? false : transparentSidenav);
       setWhiteSidenav(dispatch, window.innerWidth < 1200 ? false : whiteSidenav);
     }
 
-    /** 
-     The event listener that's calling the handleMiniSidenav function when resizing the window.
-    */
     window.addEventListener("resize", handleMiniSidenav);
 
-    // Call the handleMiniSidenav function to set the state with the initial value.
     handleMiniSidenav();
 
-    // Remove event listener on cleanup
     return () => window.removeEventListener("resize", handleMiniSidenav);
   }, [dispatch, location]);
 
-  // Render all the routes from the routes.js (All the visible items on the Sidenav)
   const renderRoutes = routes.map(({ type, name, icon, title, noCollapse, key, href, route }) => {
     let returnValue;
 
@@ -143,7 +135,6 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
           </MDTypography>
         </MDBox>
         <MDBox component={NavLink} to="/" display="flex" alignItems="center">
-          {/* {brand && <MDBox component="img" src={brand} alt="Brand" width="2rem" />} */}
           {brand && (
             <MDBox
               display="flex"
@@ -160,25 +151,14 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
               }}
             />
           )}
-
-          {/* {brand && (
-            <MDBox
-              component="img"
-              src={brand}
-              alt="Brand"
-              width="50px" // Adjust the width as needed
-              height="50px" // Adjust the height as needed
-              sx={{ objectFit: "contain" }} // Ensures the image fits well
-            />
-          )} */}
-          <MDBox
-            width={!brandName && "100%"}
-            sx={(theme) => sidenavLogoLabel(theme, { miniSidenav })}
-          >
-            <MDTypography component="h6" variant="button" fontWeight="medium" color={textColor}>
-              {brandName}
-            </MDTypography>
-          </MDBox>
+          {/* Render brandName only if provided */}
+          {brandName && (
+            <MDBox sx={(theme) => sidenavLogoLabel(theme, { miniSidenav })} ml={brand ? 1 : 0}>
+              <MDTypography component="h6" variant="button" fontWeight="medium" color={textColor}>
+                {brandName}
+              </MDTypography>
+            </MDBox>
+          )}
         </MDBox>
       </MDBox>
       <Divider
@@ -188,19 +168,6 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
         }
       />
       <List>{renderRoutes}</List>
-      {/* <MDBox p={2} mt="auto">
-        <MDButton
-          component="a"
-          href="https://www.creative-tim.com/product/material-dashboard-pro-react"
-          target="_blank"
-          rel="noreferrer"
-          variant="gradient"
-          color={sidenavColor}
-          fullWidth
-        >
-          upgrade to pro
-        </MDButton>
-      </MDBox> */}
     </SidenavRoot>
   );
 }
@@ -209,13 +176,14 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
 Sidenav.defaultProps = {
   color: "info",
   brand: "",
+  brandName: undefined, // No brand name by default
 };
 
 // Typechecking props for the Sidenav
 Sidenav.propTypes = {
   color: PropTypes.oneOf(["primary", "secondary", "info", "success", "warning", "error", "dark"]),
   brand: PropTypes.string,
-  brandName: PropTypes.string.isRequired,
+  brandName: PropTypes.string, // Optional brand name
   routes: PropTypes.arrayOf(PropTypes.object).isRequired,
 };
 
