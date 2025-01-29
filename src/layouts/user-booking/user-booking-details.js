@@ -19,7 +19,6 @@ function UserBookingDetails() {
   const { userId } = useParams(); // Get user ID from route
   const location = useLocation(); // Access location
   const { userName } = location.state || {}; // Retrieve userName from state
-  console.log("User Name Received:", userName); // Debugging check
   const [columns, setColumns] = useState([]);
   const [rows, setRows] = useState([]);
   const [pagination, setPagination] = useState({

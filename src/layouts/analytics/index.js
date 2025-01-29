@@ -71,39 +71,17 @@ function Analytics() {
     fetchAnalyticsData();
   }, [page]); // Fetch data when the page changes
 
-  if (loading) {
+  if (loading || error) {
     return (
       <DashboardLayout>
         <DashboardNavbar />
-        <MDBox pt={6} pb={3}>
+        <MDBox pt={6} pb={3} textAlign="center">
           <Grid container spacing={6}>
             <Grid item xs={12}>
               <Card>
-                <MDBox py={3} textAlign="center">
-                  <MDTypography variant="h6" color="info">
-                    Loading data, please wait...
-                  </MDTypography>
-                </MDBox>
-              </Card>
-            </Grid>
-          </Grid>
-        </MDBox>
-        <Footer />
-      </DashboardLayout>
-    );
-  }
-
-  if (error) {
-    return (
-      <DashboardLayout>
-        <DashboardNavbar />
-        <MDBox pt={6} pb={3}>
-          <Grid container spacing={6}>
-            <Grid item xs={12}>
-              <Card>
-                <MDBox py={3} textAlign="center">
-                  <MDTypography variant="h6" color="error">
-                    {error}
+                <MDBox py={3}>
+                  <MDTypography variant="h6" color={error ? "error" : "info"}>
+                    {error || "Loading data, please wait..."}
                   </MDTypography>
                 </MDBox>
               </Card>
@@ -168,15 +146,7 @@ function Analytics() {
                 icon="show_chart"
                 title="Total Revenue"
                 description="This Month's Total Revenue"
-                value={
-                  <CountUp
-                    start={0}
-                    end={totalRevenue}
-                    prefix="$"
-                    separator=","
-                    duration={2} // Duration of the animation (seconds)
-                  />
-                }
+                value={`$${totalRevenue.toLocaleString()}`}
               />
             </Grid>
             <Grid item xs={12} md={6} xl={3}>
@@ -184,7 +154,7 @@ function Analytics() {
                 icon="trending_up"
                 title="Total Users"
                 description="All Registered Users"
-                value={<CountUp start={0} end={totalUsers} duration={2} separator="," />}
+                value={totalUsers.toLocaleString()}
               />
             </Grid>
             <Grid item xs={12} md={6} xl={3}>
@@ -192,7 +162,7 @@ function Analytics() {
                 icon="bar_chart"
                 title="Total Bookings"
                 description="Bookings Completed This Month"
-                value={<CountUp start={0} end={totalBookings} duration={2} separator="," />}
+                value={totalBookings.toLocaleString()}
               />
             </Grid>
             <Grid item xs={12} md={6} xl={3}>
@@ -200,7 +170,7 @@ function Analytics() {
                 icon="people"
                 title="Active Users"
                 description="Users Active Today"
-                value={<CountUp start={0} end={validUsers.length} duration={2} separator="," />}
+                value={validUsers.length.toLocaleString()}
               />
             </Grid>
           </Grid>
