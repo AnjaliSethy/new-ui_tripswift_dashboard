@@ -15,6 +15,7 @@ import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
 import Autocomplete from "@mui/material/Autocomplete";
 // import DefaultInfoCard from "examples/Cards/InfoCards/DefaultInfoCard";
+import axios from "axios"; // Add this import
 
 function Properties() {
   // Define your variables here
@@ -37,7 +38,6 @@ function Properties() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch hotel names for autocomplete suggestions
     const fetchHotelNames = async () => {
       const token = Cookies.get("access_token");
       if (!token) {
@@ -45,20 +45,18 @@ function Properties() {
         setLoading(false);
         return;
       }
+      const apiUrl = `${process.env.REACT_APP_DASHBOARD_USER_API}/amadeus/get/all/hotels/names`;
       try {
-        const response = await fetch("http://localhost:8080/api/v1/amadeus/get/all/hotels/names", {
-          method: "GET",
+        const response = await axios.get(apiUrl, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        setHotelNames(data.hotelNames); // Assuming data.hotelNames is an array of hotel names
+        setHotelNames(response.data.hotelNames);
       } catch (err) {
         setError(err.message);
+      } finally {
+        setLoading(false);
       }
     };
     fetchHotelNames();
@@ -78,25 +76,17 @@ function Properties() {
     }
 
     setLoading(true);
+    const apiUrl = `${process.env.REACT_APP_DASHBOARD_USER_API}/amadeus/proporties/details?page=${pagination.currentPage}&limit=${pagination.rowsPerPage}`;
 
     try {
-      const response = await fetch(
-        `http://localhost:8080/api/v1/amadeus/proporties/details?page=${pagination.currentPage}&limit=${pagination.rowsPerPage}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await axios.get(apiUrl, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-      if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${response.statusText}`);
-      }
-
-      const result = await response.json();
-      if (result.success && Array.isArray(result.hotels)) {
-        const formattedRows = result.hotels.map((hotel) => ({
+      if (response.data.success && Array.isArray(response.data.hotels)) {
+        const formattedRows = response.data.hotels.map((hotel) => ({
           hotel_id: (
             <MDBox display="flex" alignItems="center" lineHeight={1}>
               <MDTypography variant="button" fontWeight="medium">
@@ -125,9 +115,9 @@ function Properties() {
         setRows(formattedRows);
         setPagination((prev) => ({
           ...prev,
-          currentPage: result.pagination.currentPage,
-          totalPages: result.pagination.totalPages,
-          totalRecords: result.pagination.totalHotels,
+          currentPage: response.data.pagination.currentPage,
+          totalPages: response.data.pagination.totalPages,
+          totalRecords: response.data.pagination.totalHotels,
         }));
       } else {
         setError("Failed to fetch data.");
@@ -170,27 +160,18 @@ function Properties() {
     }
 
     setLoading(true);
-
+    const apiUrl = `${
+      process.env.REACT_APP_DASHBOARD_USER_API
+    }/amadeus/proporties/details?name=${encodeURIComponent(hotelName)}`;
     try {
-      const response = await fetch(
-        `http://localhost:8080/api/v1/amadeus/proporties/details?name=${encodeURIComponent(
-          hotelName
-        )}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await axios.get(apiUrl, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-      if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${response.statusText}`);
-      }
-
-      const result = await response.json();
-      if (result.success && Array.isArray(result.hotels)) {
-        const formattedRows = result.hotels.map((hotel) => ({
+      if (response.data.success && Array.isArray(response.data.hotels)) {
+        const formattedRows = response.data.hotels.map((hotel) => ({
           hotel_id: (
             <MDBox display="flex" alignItems="center" lineHeight={1}>
               <MDTypography variant="button" fontWeight="medium">
@@ -221,7 +202,7 @@ function Properties() {
           ...prev,
           currentPage: 1,
           totalPages: 1,
-          totalRecords: result.pagination.totalHotels,
+          totalRecords: response.data.pagination.totalHotels,
         }));
       } else {
         setError("Failed to fetch data.");
@@ -233,7 +214,6 @@ function Properties() {
       setLoading(false);
     }
   };
-
   const filteredHotelNames = hotelNames.filter(
     (name) => name.toLowerCase().includes(autocompleteInput.toLowerCase()) // Use autocompleteInput for filtering
   );
@@ -366,12 +346,21 @@ function Properties() {
                   {selectedFilter === "Hotel Name" && (
                     <Autocomplete
                       freeSolo
-                      options={hotelNames.map((name, index) => ({ id: index, label: name }))} // Add unique id
-                      getOptionLabel={(option) => option.label} // Ensure correct display
-                      renderOption={(props, option) => (
-                        <li {...props} key={option.id}>
+                      options={hotelNames.map((name, index) => ({ id: index, label: name }))}
+                      getOptionLabel={(option) => option.label}
+                      renderOption={(
+                        { onClick, onMouseEnter, onMouseLeave, ...otherProps },
+                        option
+                      ) => (
+                        <li
+                          onClick={onClick}
+                          onMouseEnter={onMouseEnter}
+                          onMouseLeave={onMouseLeave}
+                          {...otherProps}
+                          key={option.id}
+                        >
                           {option.label}
-                        </li> // Use unique key
+                        </li>
                       )}
                       renderInput={(params) => (
                         <TextField
@@ -381,15 +370,15 @@ function Properties() {
                           onChange={(e) => setAutocompleteInput(e.target.value)}
                           value={autocompleteInput}
                           sx={{
-                            width: "200px", // Adjust width
+                            width: "200px",
                           }}
                         />
                       )}
                       onChange={(event, selectedOption) => {
                         if (!selectedOption) return;
-                        setFilterText(selectedOption.label); // Update filter text
+                        setFilterText(selectedOption.label);
                         setAutocompleteInput(selectedOption.label);
-                        fetchHotelDetails(selectedOption.label); // Fetch filtered data
+                        fetchHotelDetails(selectedOption.label);
                       }}
                       inputValue={autocompleteInput}
                       onInputChange={(event, newInputValue) => {
@@ -486,7 +475,7 @@ function Properties() {
           </Grid>
         </Grid>
       </MDBox>
-      <Footer />
+      {/* <Footer /> */}
     </DashboardLayout>
   );
 }

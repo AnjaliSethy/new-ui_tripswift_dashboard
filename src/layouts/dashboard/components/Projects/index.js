@@ -28,20 +28,17 @@ function Projects() {
   // Fetch hotel data from API
   useEffect(() => {
     const fetchData = async () => {
-      const apiUrl = process.env.NEXT_PUBLIC_DASHBOARD_USER_API;
       const access_token = Cookies.get("access_token");
       setLoading(true); // Set loading to true when fetching starts
+      const apiUrl = `${process.env.REACT_APP_DASHBOARD_USER_API}/amadeus/all/hotels?page=${page}&limit=${rowsPerPage}`;
       try {
-        const response = await fetch(
-          `http://localhost:8080/api/v1/amadeus/all/hotels?page=${page}&limit=${rowsPerPage}`,
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${access_token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
+        const response = await fetch(apiUrl, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${access_token}`,
+            "Content-Type": "application/json",
+          },
+        });
         if (response.status === 200) {
           const data = await response.json();
           setHotels(data.data);

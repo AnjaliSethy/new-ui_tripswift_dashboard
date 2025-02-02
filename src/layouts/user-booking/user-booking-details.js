@@ -14,6 +14,7 @@ import MDButton from "components/MDButton";
 import { useParams, useLocation } from "react-router-dom";
 import Chip from "@mui/material/Chip";
 import Typography from "@mui/material/Typography";
+import axios from "axios";
 
 function UserBookingDetails() {
   const { userId } = useParams(); // Get user ID from route
@@ -49,32 +50,24 @@ function UserBookingDetails() {
     try {
       const { currentPage, rowsPerPage } = pagination;
       const { startDate, endDate } = dateRange;
-
-      const url = new URL(`http://localhost:8080/api/v1/amadeus/bookings/user-dashboard`);
-      url.searchParams.append("id", userId); // Use dynamic userId
+      const apiUrl = `${process.env.REACT_APP_DASHBOARD_USER_API}/amadeus/bookings/user-dashboard`;
+      const url = new URL(apiUrl);
+      url.searchParams.append("id", userId);
       url.searchParams.append("page", currentPage);
       url.searchParams.append("limit", rowsPerPage);
       if (startDate) url.searchParams.append("startDate", startDate);
       if (endDate) url.searchParams.append("endDate", endDate);
 
-      const response = await fetch(url.toString(), {
-        method: "GET",
+      const response = await axios.get(url.toString(), {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (!response.ok) {
-        const data = await response.json();
-        setError(data.message || "Failed to fetch bookings.");
-        setLoading(false);
-        return;
-      }
-
-      const data = await response.json();
+      const data = response.data;
       const bookings = data.bookings || [];
 
       // Define columns dynamically
       setColumns([
-        { Header: "Booking ID", accessor: "bookingId" },
+        // { Header: "Booking ID", accessor: "bookingId" },
         { Header: "Hotel Name", accessor: "hotelName" },
         { Header: "Guests", accessor: "guests" },
         { Header: "Status", accessor: "status", align: "center" },
@@ -100,7 +93,6 @@ function UserBookingDetails() {
         guests: (
           <MDBox display="flex" alignItems="center" lineHeight={1}>
             <MDTypography variant="button" fontWeight="medium">
-              {" "}
               {booking.guests
                 .map((guest) => `${guest.title} ${guest.firstName} ${guest.lastName}`)
                 .join(", ")}
@@ -377,7 +369,7 @@ function UserBookingDetails() {
           </Grid>
         </Grid>
       </MDBox>
-      <Footer />
+      {/* <Footer /> */}
     </DashboardLayout>
   );
 }

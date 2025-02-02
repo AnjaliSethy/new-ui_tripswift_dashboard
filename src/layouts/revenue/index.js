@@ -19,7 +19,7 @@ function Revenue() {
   const [columns] = useState([
     { Header: "Hotel ID", accessor: "hotelId" },
     { Header: "Hotel Name", accessor: "hotelName" },
-    { Header: "Geo Code", accessor: "geoCode" },
+    { Header: "Location", accessor: "geoCode" },
     { Header: "Total Bookings", accessor: "totalBookings", align: "center" },
     // { Header: "Total Revenues", accessor: "totalRevenues" },
     { Header: "Action", accessor: "action", align: "center" },
@@ -43,12 +43,11 @@ function Revenue() {
   const [selectedFilter, setSelectedFilter] = useState("choose");
 
   useEffect(() => {
+    const apiUrl = `${process.env.REACT_APP_DASHBOARD_USER_API}/amadeus/all/revenue/details/hotel`;
     const fetchRevenueData = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(
-          `http://localhost:8080/api/v1/amadeus/all/revenue/details/hotel`
-        );
+        const response = await axios.get(apiUrl);
         const { data, totalBooking = 0, totalRevenue = 0 } = response.data;
 
         setAllData(data || []);
@@ -334,7 +333,7 @@ function Revenue() {
           </Grid>
         </Grid>
       </MDBox>
-      <Footer />
+      {/* <Footer /> */}
     </DashboardLayout>
   );
 }

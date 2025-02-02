@@ -11,7 +11,7 @@ import MDTypography from "components/MDTypography";
 
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
-import Footer from "examples/Footer";
+// import Footer from "examples/Footer";
 import ReportsBarChart from "examples/Charts/BarCharts/ReportsBarChart";
 import ReportsLineChart from "examples/Charts/LineCharts/ReportsLineChart";
 import DefaultInfoCard from "examples/Cards/InfoCards/DefaultInfoCard";
@@ -41,15 +41,14 @@ function Analytics() {
         return;
       }
 
+      const apiUrl = `${process.env.REACT_APP_DASHBOARD_USER_API}/amadeus/analytic/details?page=${page}&limit=${rowsPerPage}`;
+
       try {
-        const response = await axios.get(
-          `http://localhost:8080/api/v1/amadeus/analytic/details?page=${page}&limit=${rowsPerPage}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await axios.get(apiUrl, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
         // Check if the response is successful and contains the expected data
         if (response.data.success) {
@@ -88,7 +87,7 @@ function Analytics() {
             </Grid>
           </Grid>
         </MDBox>
-        <Footer />
+        {/* <Footer /> */}
       </DashboardLayout>
     );
   }
@@ -272,7 +271,7 @@ function Analytics() {
           </MDBox>
         </MDBox>
       </MDBox>
-      <Footer />
+      {/* <Footer /> */}
     </DashboardLayout>
   );
 }

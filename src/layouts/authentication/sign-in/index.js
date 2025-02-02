@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import Cookies from "js-cookie"; // Import js-cookie
+import Cookies from "js-cookie";
+import axios from "axios";
 
 // @mui material components
 import Card from "@mui/material/Card";
@@ -39,31 +40,20 @@ function Basic() {
     e.preventDefault();
     setError(null);
 
-    // const apiUrl = process.env.NEXT_PUBLIC_DASHBOARD_USER_API;
+    const apiUrl = `${process.env.REACT_APP_DASHBOARD_USER_API}/auth/login`;
 
     try {
-      const response = await fetch(`http://localhost:8080/api/v1/auth/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
+      const response = await axios.post(apiUrl, { email, password });
 
-      if (!response.ok) {
-        throw new Error("Invalid credentials or server error");
-      }
+      const { accessToken, name } = response.data.data;
 
-      const data = await response.json();
-      // console.log("@@@@@@@@@@@@@@@@@", data);
-      const access_token = data.data.accessToken;
-      Cookies.set("access_token", access_token, { secure: true, sameSite: "strict" }); // Store token securely
+      Cookies.set("access_token", accessToken, { secure: true, sameSite: "strict" });
+      Cookies.set("user_name", name, { secure: true, sameSite: "strict" });
 
-      // Redirect to dashboard
       navigate("/dashboard");
     } catch (err) {
       console.error("Login error:", err);
-      setError(err.message);
+      setError(err.response?.data?.message || "Invalid credentials or server error");
     }
   };
 

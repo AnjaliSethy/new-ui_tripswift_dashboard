@@ -23,24 +23,11 @@ function HotelBookingDetails() {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [startDate, setStartDate] = useState(""); // Initialize startDate
-  const [endDate, setEndDate] = useState(""); // Initialize endDate
+  const [startDate, setStartDate] = useState("2024-12-03"); // Default start date
+  const [endDate, setEndDate] = useState("2024-12-29"); // Default end date
   const hotelNameFromQuery = new URLSearchParams(window.location.search).get("name");
 
-  // Set default date values for startDate and endDate
-  useEffect(() => {
-    const today = new Date();
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(today.getDate() - 7);
-
-    setStartDate(sevenDaysAgo.toISOString().split("T")[0]); // Format to YYYY-MM-DD
-    setEndDate(today.toISOString().split("T")[0]); // Format to YYYY-MM-DD
-  }, []);
-
-  useEffect(() => {
-    fetchData(); // Fetch data when the component mounts or pagination changes
-  }, [hotelId, pagination.currentPage, pagination.rowsPerPage]);
-
+  // No need for useEffect to set default dates since they are hardcoded above
   const fetchData = async () => {
     const token = Cookies.get("access_token");
     if (!token) {
@@ -53,15 +40,29 @@ function HotelBookingDetails() {
 
     try {
       const { currentPage, rowsPerPage } = pagination;
-      const response = await fetch(
-        `http://localhost:8080/api/v1/amadeus/user/details/by/hotel/id?hotelid=${hotelId}&page=${currentPage}&limit=${rowsPerPage}`,
-        {
-          method: "GET",
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+
+      // Set default values for startDate and endDate if they are empty
+      const formattedStartDate = startDate
+        ? new Date(startDate).toISOString().split("T")[0]
+        : "1900-01-01"; // Very early date
+      const formattedEndDate = endDate
+        ? new Date(endDate).toISOString().split("T")[0]
+        : "2100-12-31"; // Very late date
+
+      const apiUrl = `${process.env.REACT_APP_DASHBOARD_USER_API}/amadeus/user/details/by/hotel/id?hotelid=${hotelId}&startDate=${formattedStartDate}&endDate=${formattedEndDate}&page=${currentPage}&limit=${rowsPerPage}`;
+
+      const response = await fetch(apiUrl, {
+        method: "GET",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
 
       const result = await response.json();
+      console.log("API Response:", result); // Log the response
+
       if (result.success) {
         setRows(result.bookingDetails || []);
         setPagination((prev) => ({
@@ -70,14 +71,19 @@ function HotelBookingDetails() {
           totalPages: result.pagination.totalPages,
         }));
       } else {
-        setError("Failed to fetch data.");
+        setError(result.message || "Failed to fetch data.");
       }
-    } catch {
+    } catch (error) {
+      console.error("Error fetching data:", error);
       setError("An error occurred while fetching data.");
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchData(); // Fetch data when the component mounts or pagination changes
+  }, [hotelId, pagination.currentPage, pagination.rowsPerPage, startDate, endDate]);
 
   const handlePageChange = (newPage) => {
     if (newPage > 0 && newPage <= pagination.totalPages) {
@@ -315,7 +321,7 @@ function HotelBookingDetails() {
           </Grid>
         </Grid>
       </MDBox>
-      <Footer />
+      {/* <Footer /> */}
     </DashboardLayout>
   );
 }

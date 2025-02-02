@@ -39,8 +39,10 @@ function Users() {
         return;
       }
 
+      const apiUrl = `${process.env.REACT_APP_DASHBOARD_USER_API}/user`;
+
       try {
-        const response = await axios.get("http://localhost:8080/api/v1/user", {
+        const response = await axios.get(apiUrl, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -118,7 +120,7 @@ function Users() {
   const navigate = useNavigate(); // Define navigate inside the component
 
   const tableColumns = [
-    { Header: "User ID", accessor: "userId" },
+    // { Header: "User ID", accessor: "userId" },
     { Header: "Name", accessor: "name" },
     { Header: "Email", accessor: "email" },
     { Header: "Role", accessor: "role" },
@@ -334,7 +336,7 @@ function Users() {
           </Grid>
         </Grid>
       </MDBox>
-      <Footer />
+      {/* <Footer /> */}
     </DashboardLayout>
   );
 }

@@ -8,6 +8,7 @@ import Analytic from "layouts/analytics";
 import Profile from "layouts/profile";
 import SignIn from "layouts/authentication/sign-in";
 import SignUp from "layouts/authentication/sign-up";
+import Logout from "layouts/authentication/log-out";
 
 // @mui icons
 import Icon from "@mui/material/Icon";
@@ -92,6 +93,14 @@ const routes = [
     icon: <Icon fontSize="small">assignment</Icon>,
     route: "/authentication/sign-up",
     component: <SignUp />,
+  },
+  {
+    type: "collapse",
+    name: "Logout",
+    key: "logout",
+    icon: <Icon fontSize="small">logout</Icon>,
+    route: "/authentication/logout",
+    component: <Logout />,
   },
 ];
 

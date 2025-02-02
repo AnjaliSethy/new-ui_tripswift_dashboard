@@ -5,6 +5,7 @@ import { useLocation, Link } from "react-router-dom";
 
 // prop-types is a library for typechecking of props.
 import PropTypes from "prop-types";
+import Cookies from "js-cookie";
 
 // @material-ui core components
 import AppBar from "@mui/material/AppBar";
@@ -42,30 +43,22 @@ function DashboardNavbar({ absolute, light, isMini }) {
   const { miniSidenav, transparentNavbar, fixedNavbar, openConfigurator, darkMode } = controller;
   const [openMenu, setOpenMenu] = useState(false);
   const route = useLocation().pathname.split("/").slice(1);
+  const [userName, setUserName] = useState("");
 
   useEffect(() => {
-    // Setting the navbar type
     if (fixedNavbar) {
       setNavbarType("sticky");
     } else {
       setNavbarType("static");
     }
 
-    // A function that sets the transparent state of the navbar.
     function handleTransparentNavbar() {
       setTransparentNavbar(dispatch, (fixedNavbar && window.scrollY === 0) || !fixedNavbar);
     }
 
-    /** 
-     The event listener that's calling the handleTransparentNavbar function when 
-     scrolling the window.
-    */
     window.addEventListener("scroll", handleTransparentNavbar);
-
-    // Call the handleTransparentNavbar function to set the state with the initial value.
     handleTransparentNavbar();
 
-    // Remove event listener on cleanup
     return () => window.removeEventListener("scroll", handleTransparentNavbar);
   }, [dispatch, fixedNavbar]);
 
@@ -74,7 +67,6 @@ function DashboardNavbar({ absolute, light, isMini }) {
   const handleOpenMenu = (event) => setOpenMenu(event.currentTarget);
   const handleCloseMenu = () => setOpenMenu(false);
 
-  // Render the notifications menu
   const renderMenu = () => (
     <Menu
       anchorEl={openMenu}
@@ -93,7 +85,6 @@ function DashboardNavbar({ absolute, light, isMini }) {
     </Menu>
   );
 
-  // Styles for the navbar icons
   const iconsStyle = ({ palette: { dark, white, text }, functions: { rgba } }) => ({
     color: () => {
       let colorValue = light || darkMode ? white.main : dark.main;
@@ -106,6 +97,13 @@ function DashboardNavbar({ absolute, light, isMini }) {
     },
   });
 
+  useEffect(() => {
+    const storedUserName = Cookies.get("user_name");
+    if (storedUserName) {
+      setUserName(storedUserName);
+    }
+  }, []);
+
   return (
     <AppBar
       position={absolute ? "absolute" : navbarType}
@@ -117,16 +115,19 @@ function DashboardNavbar({ absolute, light, isMini }) {
           <Breadcrumbs icon="home" title={route[route.length - 1]} route={route} light={light} />
         </MDBox>
         {isMini ? null : (
-          <MDBox sx={(theme) => navbarRow(theme, { isMini })}>
+          <MDBox
+            sx={(theme) => navbarRow(theme, { isMini })}
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              alignItems: "center",
+              width: "100%",
+            }} // Right alignment of components
+          >
             <MDBox pr={1}>
               <MDInput label="Search here" />
             </MDBox>
             <MDBox color={light ? "white" : "inherit"}>
-              <Link to="/profile">
-                <IconButton sx={navbarIconButton} size="small" disableRipple>
-                  <Icon sx={iconsStyle}>account_circle</Icon>
-                </IconButton>
-              </Link>
               <IconButton
                 size="small"
                 disableRipple
@@ -138,6 +139,8 @@ function DashboardNavbar({ absolute, light, isMini }) {
                   {miniSidenav ? "menu_open" : "menu"}
                 </Icon>
               </IconButton>
+            </MDBox>
+            <MDBox color={light ? "white" : "inherit"}>
               <IconButton
                 size="small"
                 disableRipple
@@ -147,6 +150,8 @@ function DashboardNavbar({ absolute, light, isMini }) {
               >
                 <Icon sx={iconsStyle}>settings</Icon>
               </IconButton>
+            </MDBox>
+            <MDBox color={light ? "white" : "inherit"}>
               <IconButton
                 size="small"
                 disableRipple
@@ -160,6 +165,26 @@ function DashboardNavbar({ absolute, light, isMini }) {
                 <Icon sx={iconsStyle}>notifications</Icon>
               </IconButton>
               {renderMenu()}
+            </MDBox>
+            <MDBox color={light ? "white" : "inherit"}>
+              <Link
+                to="/profile"
+                style={{
+                  textDecoration: "none",
+                  color: "inherit",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <IconButton sx={navbarIconButton} size="small" disableRipple>
+                    <Icon sx={iconsStyle}>account_circle</Icon>
+                  </IconButton>
+                  {userName && (
+                    <span style={{ marginLeft: "0.5px", fontWeight: "bold", fontSize: "14px" }}>
+                      {userName}
+                    </span>
+                  )}
+                </div>
+              </Link>
             </MDBox>
           </MDBox>
         )}
